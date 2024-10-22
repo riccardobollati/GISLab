@@ -120,7 +120,7 @@ public class ReadCSV : MonoBehaviour
             Debug.Log(obs);
             foreach(string s in obs)
             {
-                Debug.Log(s)
+                Debug.Log(s);
             }
             if(obs[property] == value)
             {

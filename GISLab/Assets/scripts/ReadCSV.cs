@@ -1,15 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 public class ReadCSV : MonoBehaviour
 {
-    public List<string[]> observationsDataList = new List<string[]>();
+    public List<Dictionary<string, string>> observationsDataList = new List<Dictionary<string, string>>();
 
     void Start()
     {
-        ReadCsv("observations.csv");
-        Debug.Log(GetByAttribute(4, "Paris"));
+        ReadCsv("prova_2.csv");
+        Dictionary<string, string> prova = getObservation(5);
+        List<Dictionary<string, string>> provaFilter = GetByAttribute("time_zone", "Bern");
+
+
+        Debug.Log(provaFilter[0]["id"]);
+        Debug.Log(provaFilter.Count);
+
+
+
+
     }
 
     void ReadCsv(string fileName)
@@ -20,16 +30,17 @@ public class ReadCSV : MonoBehaviour
         if (File.Exists(filePath))
         {
             string[] lines = File.ReadAllLines(filePath);
-            for (int i = 1; i < lines.Length; i++) // Skip header line
+            for (int i = 1; i < lines.Length; i++)
             {
-                string[] values = lines[i].Split(',');
-                if (values.Length >= 2)
+
+                string[] values = lines[i].Split('§');
+                if (values.Length == 67)
                 {
-                    observationsDataList.Add(values); // This works now with string[]
+                    observationsDataList.Add(obsToDictionary(values));
                 }
             }
 
-            Debug.Log("CSV Data Loaded:");
+            Debug.Log($"CSV Data Loaded: {observationsDataList.Count} elemts loaded");
         }
         else
         {
@@ -37,9 +48,13 @@ public class ReadCSV : MonoBehaviour
         }
     }
 
-    public Dictionary<string, string> GetObservation(int index)
+    public Dictionary<string, string> getObservation(int index)
     {
-        string[] observation = observationsDataList[index];
+        return observationsDataList[index];
+    }
+
+    public Dictionary<string, string> obsToDictionary(string[] observation)
+    {
         return new Dictionary<string, string>
             {
                 { "id", observation[0] },
@@ -112,16 +127,11 @@ public class ReadCSV : MonoBehaviour
             };
     }
 
-    public List<string[]> GetByAttribute(int property, string value)
+    public List<Dictionary<string, string>> GetByAttribute(string property, string value)
     {
-        List<string[]> filtered = new List<string[]>();
-        foreach(string[] obs in observationsDataList)
+        List<Dictionary<string, string>> filtered = new List<Dictionary<string, string>>();
+        foreach(Dictionary<string, string> obs in observationsDataList)
         {
-            Debug.Log(obs);
-            foreach(string s in obs)
-            {
-                Debug.Log(s);
-            }
             if(obs[property] == value)
             {
                 filtered.Add(obs);

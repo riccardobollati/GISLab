@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using System;
 
+
 public class ReadCSV : MonoBehaviour
 {
     public List<Dictionary<string, string>> observationsDataList = new List<Dictionary<string, string>>();
@@ -16,10 +17,6 @@ public class ReadCSV : MonoBehaviour
 
         Debug.Log(provaFilter[0]["id"]);
         Debug.Log(provaFilter.Count);
-
-
-
-
     }
 
     void ReadCsv(string fileName)
@@ -127,6 +124,13 @@ public class ReadCSV : MonoBehaviour
             };
     }
 
+    public Dictionary<string, double> coordsToKm(double longitude, double latitude)
+    {
+        return new Dictionary<string, double> {
+            { "latitude", latitude * 111.23 },
+            { "longitude", 40075 * Mathf.Cos(((float)longitude))/360 }
+        };
+    }
     public List<Dictionary<string, string>> GetByAttribute(string property, string value)
     {
         List<Dictionary<string, string>> filtered = new List<Dictionary<string, string>>();

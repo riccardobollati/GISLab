@@ -7,11 +7,21 @@ using UnityEngine;
 public class heatMap : MonoBehaviour
 {
 
+    // data
     public ReadCSV db;
 
-    public static int nRows = 10;
-    public static int nCols = 10;
+    // heatmap prefabs
+    public GameObject heatMapPrefab;
+    public GameObject heatMapCubes;
+    
+    public GameObject heatMapObj;
+
+    public static int nRows = 20;
+    public static int nCols = 20;
     public int[,] heatMapData = new int[nRows, nCols];
+
+    private double boxWidth;
+    private double boxHeight;
 
     // Start is called before the first frame update
     void Start()
@@ -32,9 +42,10 @@ public class heatMap : MonoBehaviour
     {
         populateHeatMap(db.observationsDataList);
         PrintHeatMapData(heatMapData);
+        createMap(0.05);
     }
 
-    public static void PrintHeatMapData(int[,] heatMapData)
+    private static void PrintHeatMapData(int[,] heatMapData)
     {
         int nRows = heatMapData.GetLength(0);
         int nCols = heatMapData.GetLength(1);
@@ -58,24 +69,23 @@ public class heatMap : MonoBehaviour
     {
 
         double maxLat = GetMaxCoord(observations, "latitude");
-        double minLat = GetMaxCoord(observations, "latitude");
+        double minLat = GetMinCoord(observations, "latitude");
 
         double maxLng = GetMaxCoord(observations, "longitude");
-        double minLng = GetMaxCoord(observations, "longitude");
+        double minLng = GetMinCoord(observations, "longitude");
 
         double gridWidth = maxLng - minLng;
         double gridHeight = maxLat - minLat;
 
-        double boxWidth = gridWidth / nCols;
-        double boxHeight = gridHeight / nRows;
+        boxWidth = gridWidth / nCols;
+        boxHeight = gridHeight / nRows;
 
-        Debug.Log(maxLat);
 
         foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
-            int col = (int)(double.Parse(point["longitude"]) - minLng / boxWidth);
-            int row = (int)(double.Parse(point["latitude"]) - minLat/ boxHeight);
+            int col = (int)((double.Parse(point["longitude"]) - minLng )/ boxWidth);
+            int row = (int)((double.Parse(point["latitude"]) - minLat)/ boxHeight);
 
             // Ensure the point is within the bounds of the grid
             if (col >= 0 && col < nCols && row >= 0 && row < nRows)
@@ -87,7 +97,6 @@ public class heatMap : MonoBehaviour
 
     private static double GetMaxCoord(List<Dictionary<string, string>> observations, string coord)
     {
-        Debug.Log(observations.Count);
         return observations
             .Where(obs => obs.ContainsKey(coord) && double.TryParse(obs[coord], out _))
             .Max(obs => double.Parse(obs[coord]));
@@ -99,9 +108,29 @@ public class heatMap : MonoBehaviour
             .Min(obs => double.Parse(obs[coord]));
     }
 
+    public void createMap(double baseline)
+    {
+        heatMapObj = Instantiate(heatMapPrefab, new Vector3(0,0,0), Quaternion.identity);
+        heatMapPrefabScript heatmapPrefabScript = heatMapObj.GetComponent<heatMapPrefabScript>();
+        PrintHeatMapData(heatMapData);
+
+
+        //initialize the heat map
+        heatmapPrefabScript.Initialize(
+            heatMapData,
+            heatMapCubes,
+            boxWidth,
+            boxHeight,
+            nRows,
+            nCols
+            );
+
+    }
+
     // Update is called once per frame
     void Update()
     {
-        
+
     }
+
 }

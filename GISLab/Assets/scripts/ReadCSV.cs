@@ -2,21 +2,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using UnityEngine.UIElements;
 
 
 public class ReadCSV : MonoBehaviour
 {
-    public List<Dictionary<string, string>> observationsDataList = new List<Dictionary<string, string>>();
+    public List<Dictionary<string, object>> observationsDataList = new List<Dictionary<string, object>>();
+
+    // control point
+    public GameObject sphereSW;
+    public GameObject sphereSE;
+    public GameObject sphereN;
+
+
+
+    private Matrix4x4 transformationMatrix;
 
     void Start()
     {
         ReadCsv("prova_2.csv");
-        Dictionary<string, string> prova = getObservation(5);
-        List<Dictionary<string, string>> provaFilter = GetByAttribute("time_zone", "Bern");
+        Dictionary<string, object> prova = getObservation(5);
+        Debug.Log(prova["latitude"]);
+        Debug.Log(prova["longitude"]);
 
+        Debug.Log(prova["latitude_converted"]);
+        Debug.Log(prova["longitude_converted"]);
 
-        Debug.Log(provaFilter[0]["id"]);
-        Debug.Log(provaFilter.Count);
+        transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
     }
 
     void ReadCsv(string fileName)
@@ -45,14 +57,16 @@ public class ReadCSV : MonoBehaviour
         }
     }
 
-    public Dictionary<string, string> getObservation(int index)
+    public Dictionary<string, object> getObservation(int index)
     {
         return observationsDataList[index];
     }
 
-    public Dictionary<string, string> obsToDictionary(string[] observation)
+    public Dictionary<string, object> obsToDictionary(string[] observation)
     {
-        return new Dictionary<string, string>
+        Vector2 convertedCoordinates = Wgs84CoordsToUnity(new Vector2(float.Parse(observation[23]), float.Parse(observation[22])));
+
+        return new Dictionary<string, object>
             {
                 { "id", observation[0] },
                 { "observed_on_string", observation[1] },
@@ -78,6 +92,8 @@ public class ReadCSV : MonoBehaviour
                 { "place_guess", observation[21] },
                 { "latitude", observation[22] },
                 { "longitude", observation[23] },
+                { "latitude_converted",  convertedCoordinates.y},
+                { "longitude_converted",  convertedCoordinates.x},
                 { "positional_accuracy", observation[24] },
                 { "private_place_guess", observation[25] },
                 { "private_latitude", observation[26] },
@@ -124,17 +140,45 @@ public class ReadCSV : MonoBehaviour
             };
     }
 
-    public Dictionary<string, double> coordsToKm(double longitude, double latitude)
+    public Matrix4x4 CalculateTransformationMatrix(GameObject sphereSW, GameObject sphereSE, GameObject sphereN)
     {
-        return new Dictionary<string, double> {
-            { "latitude", latitude * 111.23 },
-            { "longitude", 40075 * Mathf.Cos(((float)longitude))/360 }
-        };
+
+        Vector2 wgs84PointSW = new Vector2(47.320222f, 8.503180f);
+        Vector2 wgs84PointSE = new Vector2(47.354664f, 8.625453f);
+        Vector2 wgs84PointN = new Vector2(47.434685f, 8.502075f);
+
+        Vector2 unityPointSW = new Vector2(sphereSW.transform.position.x, sphereSW.transform.position.y);
+        Vector2 unityPointSE = new Vector2(sphereSW.transform.position.x, sphereSW.transform.position.y);
+        Vector2 unityPointN = new Vector2(sphereSW.transform.position.x, sphereSW.transform.position.y);
+
+        Matrix4x4 matrixP = Matrix4x4.identity;
+        matrixP.SetRow(0, new Vector4(wgs84PointSW.x, wgs84PointSW.y, 1, 0));
+        matrixP.SetRow(1, new Vector4(wgs84PointSE.x, wgs84PointSE.y, 1, 0));
+        matrixP.SetRow(2, new Vector4(wgs84PointN.x, wgs84PointN.y, 1, 0));
+
+        Matrix4x4 matrixQ = Matrix4x4.identity;
+        matrixQ.SetRow(0, new Vector4(unityPointSW.x, unityPointSW.y, 1, 0));
+        matrixQ.SetRow(1, new Vector4(unityPointSE.x, unityPointSE.y, 1, 0));
+        matrixQ.SetRow(2, new Vector4(unityPointN.x, unityPointN.y, 1, 0));
+
+        Matrix4x4 transformation = matrixP.inverse * matrixQ;
+
+        return transformation;
     }
-    public List<Dictionary<string, string>> GetByAttribute(string property, string value)
+
+    public Vector2 Wgs84CoordsToUnity(Vector2 wgs84Point)
     {
-        List<Dictionary<string, string>> filtered = new List<Dictionary<string, string>>();
-        foreach(Dictionary<string, string> obs in observationsDataList)
+        Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1, 0);
+        Vector4 unityVector = transformationMatrix * wgs84Vector;
+
+        return new Vector2(unityVector.x, unityVector.y);
+    }
+
+
+    public List<Dictionary<string, object>> GetByAttribute(string property, string value)
+    {
+        List<Dictionary<string, object>> filtered = new List<Dictionary<string, object>>();
+        foreach(Dictionary<string, object> obs in observationsDataList)
         {
             if(obs[property] == value)
             {

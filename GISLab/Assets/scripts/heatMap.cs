@@ -65,7 +65,7 @@ public class heatMap : MonoBehaviour
         Debug.Log(result);
     }
 
-    public void populateHeatMap(List<Dictionary<string, string>> observations)
+    public void populateHeatMap(List<Dictionary<string, object>> observations)
     {
 
         double maxLat = GetMaxCoord(observations, "latitude");
@@ -81,11 +81,11 @@ public class heatMap : MonoBehaviour
         boxHeight = gridHeight / nRows;
 
 
-        foreach (Dictionary<string, string> point in observations)
+        foreach (Dictionary<string, object> point in observations)
         {
             // Map the point to a grid cell
-            int col = (int)((double.Parse(point["longitude"]) - minLng )/ boxWidth);
-            int row = (int)((double.Parse(point["latitude"]) - minLat)/ boxHeight);
+            int col = (int)((double.Parse((string)point["longitude"]) - minLng )/ boxWidth);
+            int row = (int)((double.Parse((string)point["latitude"]) - minLat)/ boxHeight);
 
             // Ensure the point is within the bounds of the grid
             if (col >= 0 && col < nCols && row >= 0 && row < nRows)
@@ -95,17 +95,17 @@ public class heatMap : MonoBehaviour
         }
     }
 
-    private static double GetMaxCoord(List<Dictionary<string, string>> observations, string coord)
+    private static double GetMaxCoord(List<Dictionary<string, object>> observations, string coord)
     {
         return observations
-            .Where(obs => obs.ContainsKey(coord) && double.TryParse(obs[coord], out _))
-            .Max(obs => double.Parse(obs[coord]));
+            .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))
+            .Max(obs => double.Parse((string)obs[coord]));
     }
-    private static double GetMinCoord(List<Dictionary<string, string>> observations, string coord)
+    private static double GetMinCoord(List<Dictionary<string, object>> observations, string coord)
     {
         return observations
-            .Where(obs => obs.ContainsKey(coord) && double.TryParse(obs[coord], out _))
-            .Min(obs => double.Parse(obs[coord]));
+            .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))
+            .Min(obs => double.Parse((string)obs[coord]));
     }
 
     public void createMap(double baseline)

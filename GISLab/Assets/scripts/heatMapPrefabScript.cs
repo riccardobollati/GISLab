@@ -65,7 +65,7 @@ public class heatMapPrefabScript : MonoBehaviour
                 heatMapCubes[row, col].transform.parent = transform;
                 heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, baseline + height*2f, (float)boxHeight);
                 Vector3 newPosition = cubePosition;
-                newPosition.y += (baseline + height) / 2f;
+                newPosition.y = (baseline + height * 2f) / 2f;
                 heatMapCubes[row, col].transform.position = newPosition;
                 cubePosition = new Vector3(cubePosition.x + (float)boxWidth + gap, cubePosition.y, cubePosition.z);
 

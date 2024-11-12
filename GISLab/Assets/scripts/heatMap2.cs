@@ -20,8 +20,8 @@ public class heatMap2 : MonoBehaviour
     public int minCubes;
 
 
-    private  int nRows;
-    private  int nCols;
+    private int nRows;
+    private int nCols;
     private int[,] heatMapData;
 
     private double boxWidth;
@@ -37,20 +37,13 @@ public class heatMap2 : MonoBehaviour
         nRows = ncubes;
         nCols = ncubes;
         heatMapData = new int[nRows, nCols];
-        for (int row = 0; row < nRows; row++)
-        {
-            for (int col = 0; col < nCols; col++)
-            {
-                heatMapData[row, col] = 0;
-            }
-        }
         gran_slider.OnValueUpdated.AddListener(setGran);
         Debug.Log(heatMapData);
     }
 
     void setGran(SliderEventData eventData)
     {
-        int newGran = (int) Mathf.Lerp(minCubes, maxCubes, eventData.NewValue);
+        int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, eventData.NewValue));
         nRows = newGran;
         nCols = newGran;
         populateHeatMap(db.observationsDataList);
@@ -97,8 +90,10 @@ public class heatMap2 : MonoBehaviour
 
         boxWidth = gridWidth / nCols;
         boxHeight = gridHeight / nRows;
+        Debug.Log("col");
+        Debug.Log(nCols);
 
-
+        heatMapData = new int[nRows, nCols];
         foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
@@ -128,7 +123,7 @@ public class heatMap2 : MonoBehaviour
 
     public void createMap(double baseline)
     {
-        if (heatMapObj == null) {
+        if (heatMapObj != null) {
             Destroy(heatMapObj);
         }
         heatMapObj = Instantiate(heatMapPrefab, new Vector3(0, 0, 0), Quaternion.identity);

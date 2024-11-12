@@ -1025,10 +1025,9 @@ MonoBehaviour:
   db: {fileID: 846798702}
   heatMapPrefab: {fileID: 7701305596397920882, guid: c779e4f226a9fd04590983fafaaf87b5, type: 3}
   heatMapCubes: {fileID: 8099315876100586984, guid: ff9d8bb0dc7958d47a6e96575aa29068, type: 3}
-  heatMapObj: {fileID: 0}
   gran_slider: {fileID: 889767401}
-  maxCubes: 20
-  minCubes: 10
+  maxCubes: 50
+  minCubes: 1
 --- !u!1001 &155542551
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5513,7 +5512,7 @@ Transform:
   m_GameObject: {fileID: 1466180315}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2680.962, y: 0, z: 1251.232}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5986,15 +5985,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3239067285044802110, guid: 6617b509ea1a6304ca1daba2145f22ff, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2680.962
       objectReference: {fileID: 0}
     - target: {fileID: 3239067285044802110, guid: 6617b509ea1a6304ca1daba2145f22ff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3239067285044802110, guid: 6617b509ea1a6304ca1daba2145f22ff, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -1251.232
       objectReference: {fileID: 0}
     - target: {fileID: 3239067285044802110, guid: 6617b509ea1a6304ca1daba2145f22ff, type: 3}
       propertyPath: m_LocalRotation.w

@@ -33,7 +33,7 @@ public class ReadCSV : MonoBehaviour
 
     void ReadCsv(string fileName)
     {
-        string filePath = Path.Combine(Application.dataPath, "Data", fileName);
+        string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
         Debug.Log(filePath);
 
         if (File.Exists(filePath))

@@ -18,10 +18,11 @@ public class heatMap2 : MonoBehaviour
     // min and max number of cubes
     public int maxCubes;
     public int minCubes;
+    public GameObject parent;
 
 
-    private int nRows;
-    private int nCols;
+    private  int nRows;
+    private  int nCols;
     private int[,] heatMapData;
 
     private double boxWidth;
@@ -37,6 +38,7 @@ public class heatMap2 : MonoBehaviour
         nRows = ncubes;
         nCols = ncubes;
         heatMapData = new int[nRows, nCols];
+ 
         gran_slider.OnValueUpdated.AddListener(setGran);
         Debug.Log(heatMapData);
     }
@@ -92,8 +94,8 @@ public class heatMap2 : MonoBehaviour
         boxHeight = gridHeight / nRows;
         Debug.Log("col");
         Debug.Log(nCols);
+       
 
-        heatMapData = new int[nRows, nCols];
         foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
@@ -127,6 +129,7 @@ public class heatMap2 : MonoBehaviour
             Destroy(heatMapObj);
         }
         heatMapObj = Instantiate(heatMapPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        heatMapObj.transform.SetParent(parent.transform);
         heatMapPrefabScript heatmapPrefabScript = heatMapObj.GetComponent<heatMapPrefabScript>();
         PrintHeatMapData(heatMapData);
 

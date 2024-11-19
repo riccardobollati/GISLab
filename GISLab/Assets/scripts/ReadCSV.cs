@@ -2,12 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-using UnityEngine.UIElements;
+using System.Linq;
 
 
 public class ReadCSV : MonoBehaviour
 {
-    public List<Dictionary<string, string>> observationsDataList = new List<Dictionary<string, string>>();
+    public List<Dictionary<string, string>> observationsDataList = new ();
+    public List<Dictionary<string, string>> observationsFiltered = new ();
+
+    // Filters Parameters
+    public HashSet<string> filterCategory = new ();
+    public DateTime filterExactDate = new ();
+    public List<DateTime> filterDataRange = new ();
 
     // control point
     public GameObject sphereSW;
@@ -20,15 +26,24 @@ public class ReadCSV : MonoBehaviour
 
     void Start()
     {
+        // read data from the csv database
         ReadCsv("prova_2.csv");
-        Dictionary<string, string> prova = getObservation(5);
-        Debug.Log(prova["latitude"]);
-        Debug.Log(prova["longitude"]);
 
-        Debug.Log(prova["latitude_converted"]);
-        Debug.Log(prova["longitude_converted"]);
+        // at the beginnnig we take all the observations
+        observationsFiltered = observationsDataList;
 
+        // compute transformation matrix for coordinates
         transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
+
+        // initialize filter params
+        filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
+       "Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
+
+        filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15) , new DateTime(2024, 07, 15) };
+        FilterData();
+        Debug.Log("filtered");
+        foreach (Dictionary<string, string> obs in observationsFiltered)
+            Debug.Log(obs["observed_on"]);
     }
 
     void ReadCsv(string fileName)
@@ -42,7 +57,7 @@ public class ReadCSV : MonoBehaviour
             for (int i = 1; i < lines.Length; i++)
             {
 
-                string[] values = lines[i].Split('§');
+                string[] values = lines[i].Split('ï¿½');
                 if (values.Length == 67)
                 {
                     observationsDataList.Add(obsToDictionary(values));
@@ -183,13 +198,12 @@ public class ReadCSV : MonoBehaviour
         return new Vector2(unityVector.x, unityVector.y);
     }
 
-
     public List<Dictionary<string, string>> GetByAttribute(string property, string value)
     {
         List<Dictionary<string, string>> filtered = new List<Dictionary<string, string>>();
-        foreach(Dictionary<string, string> obs in observationsDataList)
+        foreach (Dictionary<string, string> obs in observationsDataList)
         {
-            if (obs[property] is string && (string) obs[property] == value)
+            if (obs[property] is string && (string)obs[property] == value)
             {
                 filtered.Add(obs);
             }
@@ -197,28 +211,36 @@ public class ReadCSV : MonoBehaviour
         return filtered;
 
     }
-    public enum Category
+
+    public void FilterData()
     {
-        Aves,
-        Amphibia,
-        Reptilia,
-        Mammalia,
-        Mollusca,
-        Arachnida,
-        Insecta,
-        Plantae,
-        Fungi,
-        Protozoa,
-        Unknown
+        observationsFiltered = observationsDataList;
+        // filter by category
+        if(filterCategory.Count < 13)
+            observationsFiltered = observationsFiltered.Where(obs => filterCategory.Contains(obs["iconic_taxon_name"])).ToList();
+        // filter date
+        if(filterExactDate != null)
+            observationsFiltered = observationsFiltered.Where(obs => DateTime.Parse(obs["observed_on"]) == filterExactDate).ToList();
+        else if(filterDataRange != null && filterDataRange.Count > 1)
+            observationsFiltered = observationsFiltered.Where(obs => (
+            DateTime.Parse(obs["observed_on"]) >= filterDataRange[0] && 
+            DateTime.Parse(obs["observed_on"]) <= filterDataRange[1]
+            )).ToList();
+
+        Debug.Log($"data filtered, results: {observationsFiltered.Count}");
     }
-    public enum DateType
+    public void AddCategory(string category)
     {
-        Any,
-        FixedDate,
-        Range,
+        filterCategory.Add(category);
+        Debug.Log($"Category Added: {category}");
     }
-    public List<Dictionary<string, string>> filter(Category category, DateType date_type, string date1, string date2)
+
+    // Method to remove a category
+    public void RemoveCategory(string category)
     {
-        return new List<Dictionary<string, string>>();
+        filterCategory.Remove(category);
+        Debug.Log($"Category Removed: {category}");
     }
+
+
 }

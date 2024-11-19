@@ -4114,16 +4114,16 @@ MonoBehaviour:
   db: {fileID: 846798702}
   CapsulePrefab: {fileID: 3593909463469931, guid: 7763640e6dba83646bc27ddb4959bb15, type: 3}
   parent: {fileID: 2077333327}
-  materialAves: {fileID: 2100000, guid: 33df0c258bfd87e44afc5469b4bb5dff, type: 2}
+  materialAves: {fileID: 2100000, guid: 0d35484f60f0a96459800afcdd6e73a5, type: 2}
   materialAmphibia: {fileID: 2100000, guid: 9f9cfa9846fbd2a4e9467e7795aa04d9, type: 2}
   materialReptilia: {fileID: 2100000, guid: 0888a3f86d55bca46b9aad5bab5cbf11, type: 2}
-  materialMammalia: {fileID: 2100000, guid: 0d35484f60f0a96459800afcdd6e73a5, type: 2}
+  materialMammalia: {fileID: 2100000, guid: 1c07a6b5a8a897d4e9b9a84f36d89507, type: 2}
   materialActinopterygii: {fileID: 2100000, guid: c069582e9aa7fdc43a92814f010287e3, type: 2}
   materialMollusca: {fileID: 2100000, guid: 33df0c258bfd87e44afc5469b4bb5dff, type: 2}
   materialArachnida: {fileID: 2100000, guid: 15bfe89edcc362d4fa7ed9966d72f949, type: 2}
   materialInsecta: {fileID: 2100000, guid: b01b934d57513b2499fa25cbc6ca92f1, type: 2}
-  materialPlantae: {fileID: 2100000, guid: 87f3ee9ca97b03f49a2450b58b23dc33, type: 2}
-  materialFungi: {fileID: 2100000, guid: f5eb9645f230bcd439901f3687897959, type: 2}
+  materialPlantae: {fileID: 2100000, guid: f5eb9645f230bcd439901f3687897959, type: 2}
+  materialFungi: {fileID: 2100000, guid: 87f3ee9ca97b03f49a2450b58b23dc33, type: 2}
   materialProtozoa: {fileID: 2100000, guid: 4498406ad698d924eb7b1266c93c8023, type: 2}
   materialUnknown: {fileID: 2100000, guid: 5512f769c1ec8bf49ad75e802197b24f, type: 2}
 --- !u!1001 &730060482

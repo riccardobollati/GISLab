@@ -18,11 +18,14 @@ public class heatMap2 : MonoBehaviour
     // min and max number of cubes
     public int maxCubes;
     public int minCubes;
+    public float gap = 0.01f;
+    public GameObject parent;
+    
 
-
-    private  int nRows;
-    private  int nCols;
+    private int nRows;
+    private int nCols;
     private int[,] heatMapData;
+    
 
     private double boxWidth;
     private double boxHeight;
@@ -37,20 +40,14 @@ public class heatMap2 : MonoBehaviour
         nRows = ncubes;
         nCols = ncubes;
         heatMapData = new int[nRows, nCols];
-        for (int row = 0; row < nRows; row++)
-        {
-            for (int col = 0; col < nCols; col++)
-            {
-                heatMapData[row, col] = 0;
-            }
-        }
+ 
         gran_slider.OnValueUpdated.AddListener(setGran);
         Debug.Log(heatMapData);
     }
 
     void setGran(SliderEventData eventData)
     {
-        int newGran = (int) Mathf.Lerp(minCubes, maxCubes, eventData.NewValue);
+        int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, eventData.NewValue));
         nRows = newGran;
         nCols = newGran;
         populateHeatMap(db.observationsDataList);
@@ -83,27 +80,28 @@ public class heatMap2 : MonoBehaviour
         Debug.Log(result);
     }
 
-    public void populateHeatMap(List<Dictionary<string, object>> observations)
+    public void populateHeatMap(List<Dictionary<string, string>> observations)
     {
 
-        double maxLat = GetMaxCoord(observations, "latitude");
-        double minLat = GetMinCoord(observations, "latitude");
+        double maxLat = 7;//GetMaxCoord(observations, "latitude");
+        double minLat = -7; //GetMinCoord(observations, "latitude");
 
-        double maxLng = GetMaxCoord(observations, "longitude");
-        double minLng = GetMinCoord(observations, "longitude");
+        double maxLng = 7;// GetMaxCoord(observations, "longitude");
+        double minLng = -7; //GetMinCoord(observations, "longitude");
 
         double gridWidth = maxLng - minLng;
         double gridHeight = maxLat - minLat;
 
-        boxWidth = gridWidth / nCols;
-        boxHeight = gridHeight / nRows;
+        boxWidth = (gridWidth - ((nCols-1)*gap))/nCols;
+        boxHeight = (gridHeight- ((nRows-1)*gap))/nRows;
 
 
-        foreach (Dictionary<string, object> point in observations)
+
+        foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
-            int col = (int)((double.Parse((string)point["longitude"]) - minLng) / boxWidth);
-            int row = (int)((double.Parse((string)point["latitude"]) - minLat) / boxHeight);
+            int col = (int)((double.Parse(point["longitude_converted"]) - minLng) / boxWidth);
+            int row = (int)((double.Parse(point["latitude_converted"]) - minLat) / boxHeight);
 
             // Ensure the point is within the bounds of the grid
             if (col >= 0 && col < nCols && row >= 0 && row < nRows)
@@ -113,25 +111,26 @@ public class heatMap2 : MonoBehaviour
         }
     }
 
-    private static double GetMaxCoord(List<Dictionary<string, object>> observations, string coord)
+    private static double GetMaxCoord(List<Dictionary<string, string>> observations, string coord)
     {
         return observations
-            .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))
-            .Max(obs => double.Parse((string)obs[coord]));
+            .Where(obs => obs.ContainsKey(coord) && double.TryParse(obs[coord], out _))
+            .Max(obs => double.Parse(obs[coord]));
     }
-    private static double GetMinCoord(List<Dictionary<string, object>> observations, string coord)
+    private static double GetMinCoord(List<Dictionary<string, string>> observations, string coord)
     {
         return observations
-            .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))
-            .Min(obs => double.Parse((string)obs[coord]));
+            .Where(obs => obs.ContainsKey(coord) && double.TryParse(obs[coord], out _))
+            .Min(obs => double.Parse(obs[coord]));
     }
 
     public void createMap(double baseline)
     {
-        if (heatMapObj == null) {
+        if (heatMapObj != null) {
             Destroy(heatMapObj);
         }
         heatMapObj = Instantiate(heatMapPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        heatMapObj.transform.SetParent(parent.transform);
         heatMapPrefabScript heatmapPrefabScript = heatMapObj.GetComponent<heatMapPrefabScript>();
         PrintHeatMapData(heatMapData);
 

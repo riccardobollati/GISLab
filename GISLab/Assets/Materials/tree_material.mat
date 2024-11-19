@@ -35,8 +35,8 @@ Material:
     - _Metallic: 1
     - _Smoothness: 0.4472136
     m_Colors:
-    - _BaseColor: {r: 0.34597382, g: 0.5660378, b: 0.33374807, a: 1}
-    - _Color: {r: 0.34597385, g: 0.5660378, b: 0.3337481, a: 1}
+    - _BaseColor: {r: 0.345973, g: 0.5660378, b: 0.33374724, a: 1}
+    - _Color: {r: 0.34597304, g: 0.5660378, b: 0.33374727, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

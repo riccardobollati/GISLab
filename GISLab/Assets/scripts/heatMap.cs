@@ -65,7 +65,7 @@ public class heatMap : MonoBehaviour
         Debug.Log(result);
     }
 
-    public void populateHeatMap(List<Dictionary<string, object>> observations)
+    public void populateHeatMap(List<Dictionary<string, string>> observations)
     {
 
         double maxLat = GetMaxCoord(observations, "latitude");
@@ -81,7 +81,7 @@ public class heatMap : MonoBehaviour
         boxHeight = gridHeight / nRows;
 
 
-        foreach (Dictionary<string, object> point in observations)
+        foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
             int col = (int)((double.Parse((string)point["longitude"]) - minLng )/ boxWidth);
@@ -95,13 +95,13 @@ public class heatMap : MonoBehaviour
         }
     }
 
-    private static double GetMaxCoord(List<Dictionary<string, object>> observations, string coord)
+    private static double GetMaxCoord(List<Dictionary<string, string>> observations, string coord)
     {
         return observations
             .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))
             .Max(obs => double.Parse((string)obs[coord]));
     }
-    private static double GetMinCoord(List<Dictionary<string, object>> observations, string coord)
+    private static double GetMinCoord(List<Dictionary<string, string>> observations, string coord)
     {
         return observations
             .Where(obs => obs.ContainsKey(coord) && double.TryParse((string)obs[coord], out _))

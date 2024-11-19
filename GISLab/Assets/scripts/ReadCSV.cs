@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class ReadCSV : MonoBehaviour
 {
-    public List<Dictionary<string, object>> observationsDataList = new List<Dictionary<string, object>>();
+    public List<Dictionary<string, string>> observationsDataList = new List<Dictionary<string, string>>();
 
     // control point
     public GameObject sphereSW;
@@ -21,7 +21,7 @@ public class ReadCSV : MonoBehaviour
     void Start()
     {
         ReadCsv("prova_2.csv");
-        Dictionary<string, object> prova = getObservation(5);
+        Dictionary<string, string> prova = getObservation(5);
         Debug.Log(prova["latitude"]);
         Debug.Log(prova["longitude"]);
 
@@ -57,16 +57,16 @@ public class ReadCSV : MonoBehaviour
         }
     }
 
-    public Dictionary<string, object> getObservation(int index)
+    public Dictionary<string, string> getObservation(int index)
     {
         return observationsDataList[index];
     }
 
-    public Dictionary<string, object> obsToDictionary(string[] observation)
+    public Dictionary<string, string> obsToDictionary(string[] observation)
     {
         Vector2 convertedCoordinates = Wgs84CoordsToUnity(new Vector2(float.Parse(observation[23]), float.Parse(observation[22])));
 
-        return new Dictionary<string, object>
+        return new Dictionary<string, string>
             {
                 { "id", observation[0] },
                 { "observed_on_string", observation[1] },
@@ -92,8 +92,8 @@ public class ReadCSV : MonoBehaviour
                 { "place_guess", observation[21] },
                 { "latitude", observation[22] },
                 { "longitude", observation[23] },
-                { "latitude_converted",  convertedCoordinates.y},
-                { "longitude_converted",  convertedCoordinates.x},
+                { "latitude_converted",  convertedCoordinates.y.ToString()},
+                { "longitude_converted",  convertedCoordinates.x.ToString()},
                 { "positional_accuracy", observation[24] },
                 { "private_place_guess", observation[25] },
                 { "private_latitude", observation[26] },
@@ -168,24 +168,58 @@ public class ReadCSV : MonoBehaviour
 
     public Vector2 Wgs84CoordsToUnity(Vector2 wgs84Point)
     {
-        Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1, 0);
-        Vector4 unityVector = transformationMatrix * wgs84Vector;
+        //Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1, 0);
+        //Vector4 unityVector = transformationMatrix * wgs84Vector;
 
+        //return new Vector2(unityVector.x, unityVector.y);
+
+        Matrix4x4 transMat = Matrix4x4.identity;
+        transMat.SetRow(0, new Vector4(-86.14170713f, 19.24295351f, -176.65586266f, 0));
+        transMat.SetRow(1, new Vector4(-19.24295351f, -86.14170713f, 4244.80097565f, 0));
+
+        Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1,0);
+        Vector4 unityVector = transMat * wgs84Vector;
+        Debug.Log(unityVector);
         return new Vector2(unityVector.x, unityVector.y);
     }
 
 
-    public List<Dictionary<string, object>> GetByAttribute(string property, string value)
+    public List<Dictionary<string, string>> GetByAttribute(string property, string value)
     {
-        List<Dictionary<string, object>> filtered = new List<Dictionary<string, object>>();
-        foreach(Dictionary<string, object> obs in observationsDataList)
+        List<Dictionary<string, string>> filtered = new List<Dictionary<string, string>>();
+        foreach(Dictionary<string, string> obs in observationsDataList)
         {
-            if(obs[property] == value)
+            if (obs[property] is string && (string) obs[property] == value)
             {
                 filtered.Add(obs);
             }
         }
         return filtered;
+
+    }
+    enum Category
+    {
+        Aves,
+        Amphibia,
+        Reptilia,
+        Mammalia,
+        ,
+        Mollusca,
+        Arachnida,
+        Insecta,
+        Plantae,
+        Fungi,
+        Protozoa,
+        Unknown
+    }
+    enum DateType
+    {
+        Any,
+        FixedDate,
+        Range,
+    }
+    public List<Dictionary<string, string>> filter(Category category, date_type, string date)
+    {
 
     }
 }

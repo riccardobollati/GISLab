@@ -38,8 +38,8 @@ public class ReadCSV : MonoBehaviour
         transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
 
         // initialize filter params
-        filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
-       "Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
+       // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
+       //"Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
 
         filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15) , new DateTime(2024, 07, 15) };
     }
@@ -186,17 +186,21 @@ public class ReadCSV : MonoBehaviour
     public void FilterData()
     {
         observationsFiltered = observationsDataList;
+        foreach(string c in filterCategory)
+            Debug.Log(c);
         // filter by category
         if(filterCategory.Count < 13)
-            observationsFiltered = observationsFiltered.Where(obs => filterCategory.Contains(obs["iconic_taxon_name"])).ToList();
-        // filter date
-        if(filterExactDate != null)
-            observationsFiltered = observationsFiltered.Where(obs => DateTime.Parse(obs["observed_on"]) == filterExactDate).ToList();
-        else if(filterDataRange != null && filterDataRange.Count > 1)
-            observationsFiltered = observationsFiltered.Where(obs => (
-            DateTime.Parse(obs["observed_on"]) >= filterDataRange[0] && 
-            DateTime.Parse(obs["observed_on"]) <= filterDataRange[1]
-            )).ToList();
+            observationsFiltered = observationsFiltered.Where(obs => {
+                return filterCategory.Contains(obs["iconic_taxon_name"]);
+                }).ToList();
+        //// filter date
+        //if(filterExactDate != null)
+        //    observationsFiltered = observationsFiltered.Where(obs => DateTime.Parse(obs["observed_on"]) == filterExactDate).ToList();
+        //else if(filterDataRange != null && filterDataRange.Count > 1)
+        //    observationsFiltered = observationsFiltered.Where(obs => (
+        //    DateTime.Parse(obs["observed_on"]) >= filterDataRange[0] && 
+        //    DateTime.Parse(obs["observed_on"]) <= filterDataRange[1]
+        //    )).ToList();
 
         Debug.Log($"data filtered, results: {observationsFiltered.Count}");
     }

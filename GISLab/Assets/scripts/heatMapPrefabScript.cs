@@ -12,6 +12,10 @@ public class heatMapPrefabScript : MonoBehaviour
     public float gap = 0.01f;
     public float baseline = 0.2f;
     public int[,] heatMapData;
+    public float origin_x = -7;
+    public float origin_z = -7;
+
+
     // assets
     public GameObject[,] heatMapCubes;
     public Material cubesMaterial;
@@ -54,7 +58,7 @@ public class heatMapPrefabScript : MonoBehaviour
             boxHeight = 1;
         }
 
-        Vector3 cubePosition = new Vector3(0, 0, 0);
+        Vector3 cubePosition = new Vector3(origin_x, 0, origin_z);
 
         for(int row = 0; row < nRows; row++)
         {
@@ -76,7 +80,7 @@ public class heatMapPrefabScript : MonoBehaviour
                 renderer.material.color = currentColor;
 
             }
-            cubePosition = new Vector3(0, cubePosition.y , cubePosition.z + (float)boxHeight + gap);
+            cubePosition = new Vector3(origin_x, cubePosition.y , cubePosition.z + (float)boxHeight + gap);
         }
 
         transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);

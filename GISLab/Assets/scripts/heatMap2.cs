@@ -18,12 +18,14 @@ public class heatMap2 : MonoBehaviour
     // min and max number of cubes
     public int maxCubes;
     public int minCubes;
+    public float gap = 0.01f;
     public GameObject parent;
+    
 
-
-    private  int nRows;
-    private  int nCols;
+    private int nRows;
+    private int nCols;
     private int[,] heatMapData;
+    
 
     private double boxWidth;
     private double boxHeight;
@@ -81,26 +83,25 @@ public class heatMap2 : MonoBehaviour
     public void populateHeatMap(List<Dictionary<string, string>> observations)
     {
 
-        double maxLat = GetMaxCoord(observations, "latitude");
-        double minLat = GetMinCoord(observations, "latitude");
+        double maxLat = 7;//GetMaxCoord(observations, "latitude");
+        double minLat = -7; //GetMinCoord(observations, "latitude");
 
-        double maxLng = GetMaxCoord(observations, "longitude");
-        double minLng = GetMinCoord(observations, "longitude");
+        double maxLng = 7;// GetMaxCoord(observations, "longitude");
+        double minLng = -7; //GetMinCoord(observations, "longitude");
 
         double gridWidth = maxLng - minLng;
         double gridHeight = maxLat - minLat;
 
-        boxWidth = gridWidth / nCols;
-        boxHeight = gridHeight / nRows;
-        Debug.Log("col");
-        Debug.Log(nCols);
-       
+        boxWidth = (gridWidth - ((nCols-1)*gap))/nCols;
+        boxHeight = (gridHeight- ((nRows-1)*gap))/nRows;
+
+
 
         foreach (Dictionary<string, string> point in observations)
         {
             // Map the point to a grid cell
-            int col = (int)((double.Parse(point["longitude"]) - minLng) / boxWidth);
-            int row = (int)((double.Parse(point["latitude"]) - minLat) / boxHeight);
+            int col = (int)((double.Parse(point["longitude_converted"]) - minLng) / boxWidth);
+            int row = (int)((double.Parse(point["latitude_converted"]) - minLat) / boxHeight);
 
             // Ensure the point is within the bounds of the grid
             if (col >= 0 && col < nCols && row >= 0 && row < nRows)

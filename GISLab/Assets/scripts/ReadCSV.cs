@@ -197,13 +197,12 @@ public class ReadCSV : MonoBehaviour
         return filtered;
 
     }
-    enum Category
+    public enum Category
     {
         Aves,
         Amphibia,
         Reptilia,
         Mammalia,
-        ,
         Mollusca,
         Arachnida,
         Insecta,
@@ -212,14 +211,14 @@ public class ReadCSV : MonoBehaviour
         Protozoa,
         Unknown
     }
-    enum DateType
+    public enum DateType
     {
         Any,
         FixedDate,
         Range,
     }
-    public List<Dictionary<string, string>> filter(Category category, date_type, string date)
+    public List<Dictionary<string, string>> filter(Category category, DateType date_type, string date1, string date2)
     {
-
+        return new List<Dictionary<string, string>>();
     }
 }

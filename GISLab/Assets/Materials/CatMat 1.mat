@@ -65,19 +65,19 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Filter_Width_: 2
+    - _Filter_Width_: 2.92
     - _Fixed_Radius_: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Glow_Falloff_: 2
-    - _Glow_Fraction_: 0.5
-    - _Glow_Max_: 0.5
+    - _Glow_Falloff_: 1.35
+    - _Glow_Fraction_: 0.697
+    - _Glow_Max_: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Radius_: 0.5
+    - _Radius_: 0.408
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

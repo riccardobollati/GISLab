@@ -53,9 +53,6 @@ public class PlotPoints : MonoBehaviour
         Debug.Log("creating points...");
         Debug.Log("points to scan: " + db.observationsFiltered.Count);
         
-        int ff = 0;
-        int f = 0;
-
         int i = 0;
         newDisplayed = new HashSet<string>();
         foreach (Dictionary<string, string> point in db.observationsFiltered)
@@ -67,7 +64,6 @@ public class PlotPoints : MonoBehaviour
                 // if the point is not rendered yet
                 if (!displayed.Contains(point["id"]))
                 {
-                    ff += 1;
                     // Map the point to a grid cell
                     double x = double.Parse(point["longitude_converted"]);
                     double y = double.Parse(point["latitude_converted"]);
@@ -126,15 +122,11 @@ public class PlotPoints : MonoBehaviour
                     displayed.Add(point["id"]);
                     pointsMap[point["id"]] = caps;
                 }
-                else
-                    f += 1;
 
             }
 
 
         }
-        Debug.Log("new points to add: " + ff);
-        Debug.Log("points already displazed: " + f);
         Debug.Log(displayed.Count);
         displayed.ExceptWith(newDisplayed);
         Debug.Log(displayed.Count);
@@ -144,6 +136,31 @@ public class PlotPoints : MonoBehaviour
         }
         displayed = newDisplayed;
 
+        StartCoroutine(DisableGravity());
+
+
+
     }
-    
+    IEnumerator DisableGravity()
+    {
+        // Wait for 1 seconds
+        yield return new WaitForSeconds(1.5f);
+
+        // Now call the function after the wait
+        foreach(KeyValuePair<string, GameObject> point in pointsMap)
+        {
+            GameObject go = point.Value;
+
+            // delete rigid body
+            Rigidbody rb = go.GetComponent<Rigidbody>();
+            if (rb != null)
+                Destroy(rb);
+
+            // delete capsule collider
+            CapsuleCollider cc = go.GetComponent<CapsuleCollider>();
+            if (cc != null)
+                Destroy(cc);
+        }
+    }
+
 }

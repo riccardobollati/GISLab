@@ -68,7 +68,6 @@ public class PlotPoints : MonoBehaviour
                 if (!displayed.Contains(point["id"]))
                 {
                     ff += 1;
-                    Debug.Log("rendering point: " + point["id"]);
                     // Map the point to a grid cell
                     double x = double.Parse(point["longitude_converted"]);
                     double y = double.Parse(point["latitude_converted"]);

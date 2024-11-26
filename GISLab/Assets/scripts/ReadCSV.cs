@@ -3,22 +3,35 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Linq;
+using Unity.VisualScripting;
+using MixedReality.Toolkit.UX;
+using System.Security.Cryptography;
 
 
 public class ReadCSV : MonoBehaviour
 {
-    public List<Dictionary<string, string>> observationsDataList = new ();
-    public List<Dictionary<string, string>> observationsFiltered = new ();
+
+    
+    private List<Dictionary<string, string>> observationsDataList = new(); // All data
+    private List<Dictionary<string, string>> observationsFiltered = new(); // Current filtered data
 
     // Filters Parameters
-    public HashSet<string> filterCategory = new ();
-    public DateTime filterExactDate = new ();
-    public List<DateTime> filterDataRange = new ();
+    private HashSet<string> filterCategory = new(); // Current categories
+    private bool points = true;                     // Current Point mode : points or heatmap
+    private int dateMode = 0;                          //0 = any date, 1 = fixed date, 2 = range date
+    private DateTime? exactDate = null;       // Current Date
+    private DateTime?[] dateRange = new DateTime?[2];// Current Date Range
+    private float granularity = 1;
+
+
 
     // control point
     public GameObject sphereSW;
     public GameObject sphereSE;
     public GameObject sphereN;
+    public PlotPoints pointsScript;
+    public PlotHeatMap heatMapScript;
+    public InfoPanel infoPanel;
 
 
 
@@ -38,16 +51,18 @@ public class ReadCSV : MonoBehaviour
         transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
 
         // initialize filter params
-       // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
-       //"Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
+        // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
+        //"Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
 
-        filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15) , new DateTime(2024, 07, 15) };
-    }
+        // filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15), new DateTime(2024, 07, 15) };
+        dateRange[0] = null;
+        dateRange[1] = null;
+    } 
 
     void ReadCsv(string fileName)
     {
         string filePath = Path.Combine(Application.streamingAssetsPath, fileName);
-        Debug.Log(filePath);
+        Debug.Log($"File path: {filePath}");
 
         if (File.Exists(filePath))
         {
@@ -55,7 +70,7 @@ public class ReadCSV : MonoBehaviour
             for (int i = 1; i < lines.Length; i++)
             {
 
-                string[] values = lines[i].Split('ง');
+                string[] values = lines[i].Split('ยง');
                 if (values.Length == 39) //67
                 {
                     observationsDataList.Add(obsToDictionary(values));
@@ -81,47 +96,47 @@ public class ReadCSV : MonoBehaviour
 
         return new Dictionary<string, string>
         {
-            { "id", observation[0]},                          
-            { "observed_on_string", observation[1]},           
-            { "observed_on", observation[2]},                  
-            { "time_observed_at", observation[3]},             
-            { "time_zone", observation[4]},                    
-            { "user_id", observation[5]},                      
-            { "user_login", observation[6]},                   
-            { "user_name", observation[7]},                    
-            { "created_at", observation[8]},                   
-            { "updated_at", observation[9]},                   
-            { "quality_grade", observation[10]},               
-            { "license", observation[11]},                     
-            { "url", observation[12]},                         
-            { "image_url", observation[13]},                   
-            { "sound_url", observation[14]},                   
-            { "tag_list", observation[15]},                    
-            { "description", observation[16]},                 
+            { "id", observation[0]},
+            { "observed_on_string", observation[1]},
+            { "observed_on", observation[2]},
+            { "time_observed_at", observation[3]},
+            { "time_zone", observation[4]},
+            { "user_id", observation[5]},
+            { "user_login", observation[6]},
+            { "user_name", observation[7]},
+            { "created_at", observation[8]},
+            { "updated_at", observation[9]},
+            { "quality_grade", observation[10]},
+            { "license", observation[11]},
+            { "url", observation[12]},
+            { "image_url", observation[13]},
+            { "sound_url", observation[14]},
+            { "tag_list", observation[15]},
+            { "description", observation[16]},
             { "num_identification_agreements", observation[17]},
             { "num_identification_disagreements", observation[18]},
-            { "captive_cultivated", observation[19]},          
-            { "oauth_application_id", observation[20]},        
-            { "place_guess", observation[21]},                 
-            { "latitude", observation[22]},                    
-            { "longitude", observation[23]},  
+            { "captive_cultivated", observation[19]},
+            { "oauth_application_id", observation[20]},
+            { "place_guess", observation[21]},
+            { "latitude", observation[22]},
+            { "longitude", observation[23]},
             { "latitude_converted",  convertedCoordinates.y.ToString()},
             { "longitude_converted",  convertedCoordinates.x.ToString()},
-            { "positional_accuracy", observation[24]},         
-            { "private_place_guess", observation[25]},         
-            { "private_latitude", observation[26]},            
-            { "private_longitude", observation[27]},           
-            { "public_positional_accuracy", observation[28]},  
-            { "geoprivacy", observation[29]},                  
-            { "taxon_geoprivacy", observation[30]},            
-            { "coordinates_obscured", observation[31]},        
-            { "positioning_method", observation[32]},          
-            { "positioning_device", observation[33]},          
-            { "species_guess", observation[34]},               
-            { "scientific_name", observation[35]},             
-            { "common_name", observation[36]},                 
-            { "iconic_taxon_name", observation[37]},           
-            { "taxon_id", observation[38]}                     
+            { "positional_accuracy", observation[24]},
+            { "private_place_guess", observation[25]},
+            { "private_latitude", observation[26]},
+            { "private_longitude", observation[27]},
+            { "public_positional_accuracy", observation[28]},
+            { "geoprivacy", observation[29]},
+            { "taxon_geoprivacy", observation[30]},
+            { "coordinates_obscured", observation[31]},
+            { "positioning_method", observation[32]},
+            { "positioning_device", observation[33]},
+            { "species_guess", observation[34]},
+            { "scientific_name", observation[35]},
+            { "common_name", observation[36]},
+            { "iconic_taxon_name", observation[37]},
+            { "taxon_id", observation[38]}
         };
 
 
@@ -164,7 +179,7 @@ public class ReadCSV : MonoBehaviour
         transMat.SetRow(0, new Vector4(-86.14170713f, 19.24295351f, -176.65586266f, 0));
         transMat.SetRow(1, new Vector4(-19.24295351f, -86.14170713f, 4244.80097565f, 0));
 
-        Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1,0);
+        Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1, 0);
         Vector4 unityVector = transMat * wgs84Vector;
         return new Vector2(unityVector.x, unityVector.y);
     }
@@ -186,13 +201,35 @@ public class ReadCSV : MonoBehaviour
     public void FilterData()
     {
         observationsFiltered = observationsDataList;
-        foreach(string c in filterCategory)
+        foreach (string c in filterCategory)
             Debug.Log(c);
-        // filter by category
-        if(filterCategory.Count < 13)
+
+        if (dateMode == 0) // Any date
+        {
+            observationsFiltered = observationsFiltered.Where(obs => {
+              return filterCategory.Contains(obs["iconic_taxon_name"]);
+               }).ToList();
+        }
+        else if (dateMode == 1) // Fixed Date
+        {
+                observationsFiltered = observationsFiltered.Where(obs => {
+                    return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date == exactDate;
+                }).ToList();
+        }
+        else if (dateMode == 2) // Range date
+        {
+            observationsFiltered = observationsFiltered.Where(obs => {
+                return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd",System.Globalization.CultureInfo.InvariantCulture).Date >= dateRange[0] 
+                && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date <= dateRange[1];
+            }).ToList();
+        } else // Error
+        {
+            Debug.Log("Incorrect date mode.");
+        }
+        if (filterCategory.Count < 13)
             observationsFiltered = observationsFiltered.Where(obs => {
                 return filterCategory.Contains(obs["iconic_taxon_name"]);
-                }).ToList();
+            }).ToList();
         //// filter date
         //if(filterExactDate != null)
         //    observationsFiltered = observationsFiltered.Where(obs => DateTime.Parse(obs["observed_on"]) == filterExactDate).ToList();
@@ -204,18 +241,144 @@ public class ReadCSV : MonoBehaviour
 
         Debug.Log($"data filtered, results: {observationsFiltered.Count}");
     }
+
+
+    public void SetPointMode(bool pointMode)
+    {
+        points = pointMode;
+        if (pointMode)
+        {
+            infoPanel.WriteNewLine("Point mode");
+        } else
+        {
+            infoPanel.WriteNewLine("Heatmap Mode");
+        }
+    }
+    public void AddFixedDate(String newDate)
+    {
+        dateMode = 1;
+        if (checkDate(newDate))
+        {
+            exactDate = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            infoPanel.WriteNewLine($"Exact date: {((DateTime)exactDate).ToString("yyyy-MM-dd")}");
+        }
+
+    }
+
+    public void AddRangeDateFrom(String newDate)
+    {
+        dateMode = 2;
+        if (checkDate(newDate))
+        {
+            dateRange[0] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            if (dateRange[1] != null) { infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
+            else
+            {
+                infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to ?");
+            }
+        }
+    }
+
+    public void AddRangeDateTo(String newDate)
+    {
+        dateMode = 2;
+        if (checkDate(newDate))
+        {
+            dateRange[1] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            if (dateRange[0] != null) {infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
+            else
+            {
+                infoPanel.WriteNewLine($"Date range: from ? to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}");
+            }
+        }
+
+    }
+
+    public void SetAnyDate()
+    {
+        dateMode = 0;
+        infoPanel.WriteNewLine("Any date selected");
+    }
+
     public void AddCategory(string category)
     {
         filterCategory.Add(category);
-        Debug.Log($"Category Added: {category}");
+        infoPanel.WriteNewLine($"Category Added: {category}");
     }
 
-    // Method to remove a category
     public void RemoveCategory(string category)
     {
         filterCategory.Remove(category);
-        Debug.Log($"Category Removed: {category}");
+        infoPanel.WriteNewLine($"Category removed: {category}");
     }
 
+    public void setGranularity(SliderEventData eventData)
+    {
+        granularity = eventData.NewValue;
+        infoPanel.WriteNewLine($"Granularity changed: {eventData.NewValue}");
 
+    }
+
+    public void Confirm()
+    {
+        if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))
+        {
+            infoPanel.WriteNewLine("Incorrect date format.");
+            return;
+        }
+        if (dateMode == 2 && dateRange[1] < dateRange[0])
+        {
+            infoPanel.WriteNewLine("To date smaller than from date.");
+            return;
+        }
+        {
+
+        }
+        FilterData();
+        if (observationsFiltered.Count == 0)
+        {
+            infoPanel.WriteNewLine("No datapoints found for this filter.");
+
+        } else if (points)
+        {
+            heatMapScript.Destroy();
+            pointsScript.plot(observationsFiltered);
+            infoPanel.WriteNewLine("Points plotted.");
+
+        } else
+        {
+            pointsScript.Destroy();
+            heatMapScript.plot(observationsFiltered, granularity);
+            infoPanel.WriteNewLine("HeatMap plotted.");
+
+        }
+    }
+
+    public bool checkDate(string date)
+    {
+        var flag = true;
+        try
+        {
+            DateTime.ParseExact(date,
+                "yyyy-mm-dd",
+                System.Globalization.CultureInfo.InvariantCulture);
+
+        }
+        catch
+        {
+            flag = false;
+        }
+
+        if (flag == false)
+        {
+            infoPanel.WriteNewLine("Incorrect date format.");
+            return false;
+        }
+        else
+        {
+            return true;
+
+        }
+
+    }
 }

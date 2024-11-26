@@ -40,9 +40,9 @@ public class heatMap : MonoBehaviour
 
     public void run()
     {
-        populateHeatMap(db.observationsDataList);
-        PrintHeatMapData(heatMapData);
-        createMap(0.05);
+        //populateHeatMap(db.observationsDataList);
+        //PrintHeatMapData(heatMapData);
+        //createMap(0.05);
     }
 
     private static void PrintHeatMapData(int[,] heatMapData)

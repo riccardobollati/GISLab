@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
 
 public class heatMapPrefabScript : MonoBehaviour
@@ -10,7 +11,7 @@ public class heatMapPrefabScript : MonoBehaviour
     public int nRows;
     public int nCols;
     public float gap = 0.01f;
-    public float baseline = 0.2f;
+    public float baseline = 0.8f;
     public int[,] heatMapData;
     public float origin_x = -7;
     public float origin_z = -7;
@@ -19,6 +20,7 @@ public class heatMapPrefabScript : MonoBehaviour
     // assets
     public GameObject[,] heatMapCubes;
     public Material cubesMaterial;
+    public static GameObject parent;
 
 
     public void Initialize(
@@ -58,7 +60,7 @@ public class heatMapPrefabScript : MonoBehaviour
             boxHeight = 1;
         }
 
-        Vector3 cubePosition = new Vector3(origin_x, 0, origin_z);
+        Vector3 cubePosition = new Vector3(origin_x, 0.5f, origin_z);
 
         for(int row = 0; row < nRows; row++)
         {
@@ -66,7 +68,7 @@ public class heatMapPrefabScript : MonoBehaviour
             {
                 float height = (float)heatMapData[row, col] / (float)max;
                 heatMapCubes[row, col] = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
-                heatMapCubes[row, col].transform.parent = transform;
+                heatMapCubes[row, col].transform.parent = parent.transform;
                 heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, baseline + height*2f, (float)boxHeight);
                 Vector3 newPosition = cubePosition;
                 newPosition.y = (baseline + height * 2f) / 2f;
@@ -83,7 +85,8 @@ public class heatMapPrefabScript : MonoBehaviour
             cubePosition = new Vector3(origin_x, cubePosition.y , cubePosition.z + (float)boxHeight + gap);
         }
 
-        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        //transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        transform.position = new Vector3(0, 0.5f, 0);
 
     }
     public static int GetMaxFrom2DArray(int[,] array)

@@ -47,17 +47,17 @@ public class heatMap2 : MonoBehaviour
 
     void setGran(SliderEventData eventData)
     {
-        int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, eventData.NewValue));
-        nRows = newGran;
-        nCols = newGran;
-        populateHeatMap(db.observationsDataList);
-        createMap(0.05);
+        //int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, eventData.NewValue));
+        //nRows = newGran;
+        //nCols = newGran;
+        //populateHeatMap(db.observationsDataList);
+        //createMap(0.05);
     }
     public void run()
     {
-        populateHeatMap(db.observationsDataList);
-        PrintHeatMapData(heatMapData);
-        createMap(0.05);
+        //populateHeatMap(db.observationsDataList);
+        //PrintHeatMapData(heatMapData);
+        //createMap(0.05);
     }
 
     private static void PrintHeatMapData(int[,] heatMapData)

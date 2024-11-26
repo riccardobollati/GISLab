@@ -8,6 +8,9 @@ public class CheckDate : MonoBehaviour
 {
 
     public InfoPanel infoPanel;
+    public ReadCSV db;
+    private DateTime newDate;
+    private bool isValid = false;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +43,13 @@ public class CheckDate : MonoBehaviour
         if (flag == false) 
         {
             infoPanel.WriteNewLine("Incorrect date format.");
+            isValid = false;
+        } else
+        {
+            isValid = true;
+            newDate = DateTime.ParseExact(date, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture);
+            db.AddFixedDate(newDate);
+
         }
 
     }

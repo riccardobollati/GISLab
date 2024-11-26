@@ -7,20 +7,12 @@ using UnityEngine;
 public class PlotHeatMap : MonoBehaviour
 {
 
-    // data
-    public ReadCSV db;
-
+    
     // heatmap prefabs
     public GameObject cubePrefab;
-
-
     // Parent Plane
     public GameObject parent_plane;
 
-    // UI
-    public Slider gran_slider;
-
-    // Style
     public float gap;
     public int maxCubes;
     public int minCubes;
@@ -52,7 +44,6 @@ public class PlotHeatMap : MonoBehaviour
     // assets
     private GameObject[,] heatMapCubes;
 
-    private List<Dictionary<string, string>> data;
 
     void Start()
     {
@@ -62,30 +53,14 @@ public class PlotHeatMap : MonoBehaviour
         nCols = ncubes;
         heatMapData = new int[nRows, nCols];
 
-        // UI bindings
-        gran_slider.OnValueUpdated.AddListener(setGran);
-
-        //set data
-        data = db.observationsDataList;
     }
 
-    private void set_data(List<Dictionary<string, string>> new_data)
-    {
-        data = new_data;
-    }
-    private void setGran(SliderEventData eventData)
-    {
-        int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, eventData.NewValue));
-        nRows = newGran;
-        nCols = newGran;
-        plot();
-    }
+ 
+    
 
-
-    public void plot()
+    public void plot(List<Dictionary<string, string>> data, float granularity)
     {
-        populateHeatMap();
-        //PrintHeatMapData(heatMapData);
+        populateHeatMap(data, granularity);
         createMap();
     }
 
@@ -109,8 +84,11 @@ public class PlotHeatMap : MonoBehaviour
         Debug.Log(result);
     }
 
-    public void populateHeatMap()
+    private void populateHeatMap(List<Dictionary<string, string>> data, float granularity)
     {
+        int newGran = Mathf.RoundToInt(Mathf.Lerp(minCubes, maxCubes, granularity));
+        nRows = newGran;
+        nCols = newGran;
         heatMapData = new int[nRows, nCols];
 
         double gridWidth = maxLng - minLng;
@@ -138,8 +116,16 @@ public class PlotHeatMap : MonoBehaviour
         }
     }
 
+    public void Destroy()
+    {
+        if (heatMapCubes != null)
+        {
+            foreach (GameObject cube in heatMapCubes)
+                Destroy(cube);
+        }
+    }
 
-    public void createMap()
+    private void createMap()
     {
         if (heatMapCubes != null)
         {
@@ -191,7 +177,7 @@ public class PlotHeatMap : MonoBehaviour
         //transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 
-    public static int GetMaxFrom2DArray(int[,] array)
+    private static int GetMaxFrom2DArray(int[,] array)
     {
         int max = int.MinValue;
 

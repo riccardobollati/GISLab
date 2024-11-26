@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlotPoints : MonoBehaviour
 {
-    public ReadCSV db;
 
     // heatmap prefabs
     public GameObject CapsulePrefab;
@@ -28,34 +27,31 @@ public class PlotPoints : MonoBehaviour
 
     int firstFrame = 0;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
-    void Update()
-    {
-        if (firstFrame == 0)
-        {
-            createPoints();
-            firstFrame = 1;
-        }
 
-    }
+
+    
 
     // to keep track of rendered points
     HashSet<string> displayed = new HashSet<string>();
     HashSet<string> newDisplayed = new HashSet<string>();
     Dictionary<string, GameObject> pointsMap = new();
 
-    public void createPoints()
+    public void Destroy()
+    {
+        foreach (string pointId in displayed)
+        {
+            Destroy(pointsMap[pointId]);
+        }
+    }
+    public void plot(List<Dictionary<string, string>> data)
     {
         Debug.Log("creating points...");
-        Debug.Log("points to scan: " + db.observationsFiltered.Count);
+        Debug.Log("points to scan: " + data.Count);
         
         int i = 0;
         newDisplayed = new HashSet<string>();
-        foreach (Dictionary<string, string> point in db.observationsFiltered)
+        foreach (Dictionary<string, string> point in data)
         {
             i += 1;
             if (i < pointsMax)

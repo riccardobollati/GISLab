@@ -70,6 +70,7 @@ public class PlotPoints : MonoBehaviour
                     caps.transform.SetParent(parent.transform);
                     caps.transform.localPosition = new Vector3((float)x, 0, (float)y);
                     caps.name = name;
+                    caps.layer = 7;
 
                     // Get the Renderer component from the new cube
                     var cubeRenderer = caps.GetComponent<Renderer>();
@@ -151,11 +152,6 @@ public class PlotPoints : MonoBehaviour
             Rigidbody rb = go.GetComponent<Rigidbody>();
             if (rb != null)
                 Destroy(rb);
-
-            // delete capsule collider
-            CapsuleCollider cc = go.GetComponent<CapsuleCollider>();
-            if (cc != null)
-                Destroy(cc);
         }
     }
 

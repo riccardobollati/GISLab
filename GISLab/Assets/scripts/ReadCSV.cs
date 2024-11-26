@@ -4,6 +4,8 @@ using System.IO;
 using System;
 using System.Linq;
 using Unity.VisualScripting;
+using MixedReality.Toolkit.UX;
+using System.Security.Cryptography;
 
 
 public class ReadCSV : MonoBehaviour
@@ -17,8 +19,8 @@ public class ReadCSV : MonoBehaviour
     private HashSet<string> filterCategory = new(); // Current categories
     private bool points = true;                     // Current Point mode : points or heatmap
     private int dateMode = 0;                          //0 = any date, 1 = fixed date, 2 = range date
-    private DateTime exactDate;       // Current Date
-    private List<DateTime> dateRange; // Current Date Range
+    private DateTime? exactDate = null;       // Current Date
+    private DateTime?[] dateRange = new DateTime?[2];// Current Date Range
     private float granularity = 1;
 
 
@@ -52,8 +54,10 @@ public class ReadCSV : MonoBehaviour
         // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
         //"Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
 
-      // filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15), new DateTime(2024, 07, 15) };
-    }
+        // filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15), new DateTime(2024, 07, 15) };
+        dateRange[0] = null;
+        dateRange[1] = null;
+    } 
 
     void ReadCsv(string fileName)
     {
@@ -209,14 +213,14 @@ public class ReadCSV : MonoBehaviour
         else if (dateMode == 1) // Fixed Date
         {
                 observationsFiltered = observationsFiltered.Where(obs => {
-                    return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) == exactDate;
+                    return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date == exactDate;
                 }).ToList();
         }
         else if (dateMode == 2) // Range date
         {
             observationsFiltered = observationsFiltered.Where(obs => {
-                return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd",System.Globalization.CultureInfo.InvariantCulture) >= dateRange[0] 
-                && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) <= dateRange[1];
+                return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd",System.Globalization.CultureInfo.InvariantCulture).Date >= dateRange[0] 
+                && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date <= dateRange[1];
             }).ToList();
         } else // Error
         {
@@ -250,20 +254,43 @@ public class ReadCSV : MonoBehaviour
             infoPanel.WriteNewLine("Heatmap Mode");
         }
     }
-    public void AddFixedDate(DateTime newExactDate)
+    public void AddFixedDate(String newDate)
     {
         dateMode = 1;
-        exactDate = newExactDate;
-
-        Debug.Log("Fixed date : ");
+        if (checkDate(newDate))
+        {
+            exactDate = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            infoPanel.WriteNewLine($"Exact date: {((DateTime)exactDate).ToString("yyyy-MM-dd")}");
+        }
 
     }
 
-    public void AddRangeDate(DateTime newLowDate, DateTime newHighDate)
+    public void AddRangeDateFrom(String newDate)
     {
         dateMode = 2;
-        dateRange = new List<DateTime> {newLowDate, newHighDate};
-        infoPanel.WriteNewLine($"Date range: from {newLowDate} to {newHighDate}");
+        if (checkDate(newDate))
+        {
+            dateRange[0] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            if (dateRange[1] != null) { infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
+            else
+            {
+                infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to ?");
+            }
+        }
+    }
+
+    public void AddRangeDateTo(String newDate)
+    {
+        dateMode = 2;
+        if (checkDate(newDate))
+        {
+            dateRange[1] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+            if (dateRange[0] != null) {infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
+            else
+            {
+                infoPanel.WriteNewLine($"Date range: from ? to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}");
+            }
+        }
 
     }
 
@@ -285,16 +312,28 @@ public class ReadCSV : MonoBehaviour
         infoPanel.WriteNewLine($"Category removed: {category}");
     }
 
-    public void setGranularity(float newGranularity)
+    public void setGranularity(SliderEventData eventData)
     {
-        granularity = newGranularity;
-        infoPanel.WriteNewLine($"Granularity changed: {newGranularity}");
+        granularity = eventData.NewValue;
+        infoPanel.WriteNewLine($"Granularity changed: {eventData.NewValue}");
 
     }
 
     public void Confirm()
     {
-        Debug.Log(observationsFiltered);
+        if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))
+        {
+            infoPanel.WriteNewLine("Incorrect date format.");
+            return;
+        }
+        if (dateMode == 2 && dateRange[1] < dateRange[0])
+        {
+            infoPanel.WriteNewLine("To date smaller than from date.");
+            return;
+        }
+        {
+
+        }
         FilterData();
         if (observationsFiltered.Count == 0)
         {
@@ -313,5 +352,33 @@ public class ReadCSV : MonoBehaviour
             infoPanel.WriteNewLine("HeatMap plotted.");
 
         }
+    }
+
+    public bool checkDate(string date)
+    {
+        var flag = true;
+        try
+        {
+            DateTime.ParseExact(date,
+                "yyyy-mm-dd",
+                System.Globalization.CultureInfo.InvariantCulture);
+
+        }
+        catch
+        {
+            flag = false;
+        }
+
+        if (flag == false)
+        {
+            infoPanel.WriteNewLine("Incorrect date format.");
+            return false;
+        }
+        else
+        {
+            return true;
+
+        }
+
     }
 }

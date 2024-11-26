@@ -148,7 +148,10 @@ public class PlotHeatMap : MonoBehaviour
         }
         heatMapCubes = new GameObject[nRows, nCols];
         int max = GetMaxFrom2DArray(heatMapData);
-
+        if (max == 0)
+        {
+            max = 1;
+        }
         //if (boxWidth > boxHeight)
         //{
         //    boxHeight = boxHeight / boxWidth;
@@ -172,6 +175,7 @@ public class PlotHeatMap : MonoBehaviour
                 heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, baseline + height * 2f, (float)boxHeight);
                 Vector3 newPosition = cubePosition;
                 newPosition.y = (baseline + height * 2f) / 2f;
+
                 heatMapCubes[row, col].transform.position = newPosition;
                 cubePosition = new Vector3(cubePosition.x + (float)boxWidth + gap, cubePosition.y, cubePosition.z);
 
@@ -180,7 +184,6 @@ public class PlotHeatMap : MonoBehaviour
                 Color currentColor = renderer.material.color;
                 currentColor.a = height * 170 / 255;
                 renderer.material.color = currentColor;
-
             }
             cubePosition = new Vector3(origin_x, cubePosition.y, cubePosition.z + (float)boxHeight + gap);
         }

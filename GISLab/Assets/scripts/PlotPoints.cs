@@ -63,7 +63,7 @@ public class PlotPoints : MonoBehaviour
                     // Map the point to a grid cell
                     double x = double.Parse(point["longitude_converted"]);
                     double y = double.Parse(point["latitude_converted"]);
-                    string name = "point" + point["id"];
+                    string name = point["id"];
                     string taxon = point["iconic_taxon_name"];
 
                     GameObject caps = Instantiate(CapsulePrefab, new Vector3(0, 0, 0), Quaternion.identity);

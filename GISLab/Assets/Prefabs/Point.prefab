@@ -336,7 +336,19 @@ MonoBehaviour:
         m_Calls: []
   <OnClicked>k__BackingField:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8501086689855231276}
+        m_TargetAssemblyTypeName: pointHandler, Assembly-CSharp
+        m_MethodName: OnCLicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   <OnEnabled>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
@@ -355,5 +367,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc7734cb4ddad247887dff31d5ec975, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoveringParticlesPrefab: {fileID: 684228016277634912, guid: 321e9417bf7235540911a9e26d68b4ba, type: 3}
-  hoveringParticles: {fileID: 684228016277634912, guid: 321e9417bf7235540911a9e26d68b4ba, type: 3}
+  hoveringParticlesPrefab: {fileID: 8099315876100586984, guid: ff9d8bb0dc7958d47a6e96575aa29068, type: 3}
+  popUp: {fileID: 1294699824833621361, guid: 9b441731f9a791541b2b934c1f8649d5, type: 3}

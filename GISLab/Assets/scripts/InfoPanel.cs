@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 
 public class InfoPanel : MonoBehaviour
 {
     public int nlines = 7;
+    public int llength = 15;
     public TextMeshProUGUI tmp;
 
     // Start is called before the first frame update
@@ -15,7 +17,8 @@ public class InfoPanel : MonoBehaviour
 
     public void WriteNewLine(string line)
     {
-        if (lines.Count() >= nlines)
+      
+        while (lines.Count() >= nlines)
         {
             lines.Dequeue();    
         }

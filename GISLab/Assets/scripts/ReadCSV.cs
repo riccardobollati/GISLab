@@ -6,8 +6,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using MixedReality.Toolkit.UX;
 using System.Security.Cryptography;
-
-
+using Unity.XR.CoreUtils;
+using UnityEngine.InputSystem.LowLevel;
 public class ReadCSV : MonoBehaviour
 {
 
@@ -31,12 +31,32 @@ public class ReadCSV : MonoBehaviour
     public GameObject sphereN;
     public PlotPoints pointsScript;
     public PlotHeatMap heatMapScript;
+    public AroundMe arountMeScript;
     public InfoPanel infoPanel;
+    public GameObject zurichAppObject;
+    public AMPosition AMPosition;
+    public AMrotation AMRotation;
+    public GameObject zurichMap;
+
+
 
 
 
     private Matrix4x4 transformationMatrix;
 
+    private bool lockAroundMePosition = false;
+    private bool lockAroundMeRotation = false;
+
+    private Vector3 capsPosition;
+    private Vector3 gameMapPosition;
+    private Vector3 userPosition;
+    private Quaternion origineRotation;
+    private Quaternion userRotation;
+    private Vector3 orPos;
+    private Quaternion orRot;
+    private Vector3 orScale;
+
+    public XROrigin xrOrigin;
     void Start()
     {
         // read data from the csv database
@@ -57,6 +77,12 @@ public class ReadCSV : MonoBehaviour
         // filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15), new DateTime(2024, 07, 15) };
         dateRange[0] = null;
         dateRange[1] = null;
+
+        
+        if (xrOrigin == null)
+        {
+            Debug.LogError("XROrigin not found! Ensure your MRTK scene is properly set up.");
+        }
     } 
 
     void ReadCsv(string fileName)
@@ -251,8 +277,47 @@ public class ReadCSV : MonoBehaviour
             infoPanel.WriteNewLine("Point mode");
         } else
         {
-            infoPanel.WriteNewLine("Heatmap Mode");
+            infoPanel.WriteNewLine("Heatmap mode");
         }
+    }
+
+    public void SetAroundMeMode()
+    {
+        points = true;
+        lockAroundMePosition = true;
+        heatMapScript.Destroy();
+        pointsScript.Destroy();
+        infoPanel.WriteNewLine("Around Me mode");
+        infoPanel.WriteNewLine("Please, place the blue beacon where you are");
+        infoPanel.WriteNewLine("to indicte your current location. Then press 'Validate'.");
+        AMPosition.Show(true);
+    }
+
+    public void exitArounMeMode()
+    {
+
+        infoPanel.WriteNewLine("Exited Around Me mode");
+        AMRotation.Show(false);
+        AMPosition.Show(false);
+        pointsScript.Destroy();
+        heatMapScript.Destroy();
+
+        zurichAppObject.transform.position = orPos;
+        zurichAppObject.transform.rotation = orRot;
+        zurichAppObject.transform.localScale = orScale;
+        zurichMap.SetActive(true);
+        lockAroundMePosition = false;
+        lockAroundMeRotation = false;
+    }
+
+    private void AroundMeRotation()
+    {
+        infoPanel.WriteNewLine("Please, now rotate the compas to point north");
+        infoPanel.WriteNewLine("Then press 'Validate'.");
+        origineRotation = AMRotation.getRotation();
+        AMRotation.Show(true);
+        
+        zurichMap.SetActive(false);
     }
     public void AddFixedDate(String newDate)
     {
@@ -321,6 +386,37 @@ public class ReadCSV : MonoBehaviour
 
     public void Confirm()
     {
+        if (lockAroundMePosition)
+        {
+            capsPosition = AMPosition.getPosition();
+            userPosition = xrOrigin.Camera.transform.position;
+            gameMapPosition = zurichAppObject.transform.position;
+   
+            lockAroundMePosition = false;
+            lockAroundMeRotation = true;
+            AMPosition.Show(false);
+            AroundMeRotation();
+
+            return;
+        }
+        if (lockAroundMeRotation)
+        {
+             userRotation = AMRotation.getRotation();
+
+            
+
+            lockAroundMeRotation = false;
+            AMRotation.Show(false);
+            infoPanel.WriteNewLine("You can now apply the filter normally.");
+            //hide zurich
+            orPos = zurichAppObject.transform.position;
+            orRot = zurichAppObject.transform.rotation;
+            orScale = zurichAppObject.transform.localScale;
+            zurichAppObject.transform.position = userPosition - capsPosition;
+            zurichAppObject.transform.rotation = Quaternion.Inverse(origineRotation) * userRotation;
+            zurichAppObject.transform.localScale= 10 * Vector3.one;
+            return;
+        }
         if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))
         {
             infoPanel.WriteNewLine("Incorrect date format.");
@@ -331,9 +427,7 @@ public class ReadCSV : MonoBehaviour
             infoPanel.WriteNewLine("To date smaller than from date.");
             return;
         }
-        {
-
-        }
+        
         FilterData();
         if (observationsFiltered.Count == 0)
         {
@@ -341,6 +435,7 @@ public class ReadCSV : MonoBehaviour
 
         } else if (points)
         {
+            
             heatMapScript.Destroy();
             pointsScript.plot(observationsFiltered);
             infoPanel.WriteNewLine("Points plotted.");
@@ -381,4 +476,10 @@ public class ReadCSV : MonoBehaviour
         }
 
     }
+
+    public void plotShpere()
+    {
+        arountMeScript.Plot(observationsFiltered);
+    }
+    
 }

@@ -27,9 +27,8 @@ public class pointHandler : MonoBehaviour
         Vector3 spawnPosition = transform.position + new Vector3(0, 1, 0);
         popUp = Instantiate(popUp, spawnPosition, Quaternion.identity);
         PopUpManager popUpMen = popUp.GetComponent<PopUpManager>();
-        popUpMen.dbObj = GameObject.Find("DB");  // or however you find the db object
+        popUpMen.dbObj = GameObject.Find("DB");
         popUpMen.db = popUpMen.dbObj.GetComponent<ReadCSV>();
-        //popUpMen.PopulatePopUp(int.Parse(transform.name));
         Debug.Log("[pointHandler] Getting data for observation: " + gameObject.name);
         popUpMen.PopulatePopUp(gameObject.name);
 

@@ -30,7 +30,8 @@ public class pointHandler : MonoBehaviour
         popUpMen.dbObj = GameObject.Find("DB");  // or however you find the db object
         popUpMen.db = popUpMen.dbObj.GetComponent<ReadCSV>();
         //popUpMen.PopulatePopUp(int.Parse(transform.name));
-        popUpMen.PopulatePopUp(10);
+        Debug.Log("[pointHandler] Getting data for observation: " + gameObject.name);
+        popUpMen.PopulatePopUp(gameObject.name);
 
 
     }

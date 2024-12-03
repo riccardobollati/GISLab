@@ -9980,7 +9980,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!199 &1264506216
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -94490,6 +94490,10 @@ PrefabInstance:
     - target: {fileID: 2530980554367063995, guid: b238bb7ff9bb40947a987874e82048bc, type: 3}
       propertyPath: m_Name
       value: Particle_small
+      objectReference: {fileID: 0}
+    - target: {fileID: 2530980554367063995, guid: b238bb7ff9bb40947a987874e82048bc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6041092895448799559, guid: b238bb7ff9bb40947a987874e82048bc, type: 3}
       propertyPath: m_LocalPosition.x

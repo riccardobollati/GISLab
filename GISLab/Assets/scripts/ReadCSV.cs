@@ -116,6 +116,17 @@ public class ReadCSV : MonoBehaviour
         return observationsDataList[index];
     }
 
+    public Dictionary<string, string> getObservationByID(string id)
+    {
+        foreach(Dictionary<string, string> obs in observationsFiltered)
+        {
+            if(obs["id"] == id)
+                return obs;       
+        }
+
+        return null;
+    }
+
     public Dictionary<string, string> obsToDictionary(string[] observation)
     {
         Vector2 convertedCoordinates = Wgs84CoordsToUnity(new Vector2(float.Parse(observation[23]), float.Parse(observation[22])));

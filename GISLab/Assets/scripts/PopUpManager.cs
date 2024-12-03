@@ -21,7 +21,7 @@ public class PopUpManager : MonoBehaviour
 
     }
 
-    public void PopulatePopUp(int id)
+    public void PopulatePopUp(string id)
     {
 
         // get text component
@@ -35,7 +35,7 @@ public class PopUpManager : MonoBehaviour
         timeObservedAt = transform.Find("content/time_observed_at").GetComponent<TMP_Text>();
 
         // get observation
-        Dictionary<string, string> observation = db.getObservation(id);
+        Dictionary<string, string> observation = db.getObservationByID(id);
 
         // set texts
         commonName.text = observation["common_name"];

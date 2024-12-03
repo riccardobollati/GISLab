@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:GISLab/Assets/scripts/AMPosition.cs.meta
 guid: c799ae38160526d40bf3b72bbd5d413d
+========
+guid: ddc06bc8592ff5741901023363d6b41b
+>>>>>>>> 4987e65110e179d1fd571407573722a7447a4997:GISLab/Assets/scripts/PopUpManager.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

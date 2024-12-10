@@ -68,7 +68,7 @@ public class ReadCSV : MonoBehaviour
 
 
         // compute transformation matrix for coordinates
-        transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
+        //transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
 
         // initialize filter params
         // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",

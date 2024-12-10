@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Search;
+//using UnityEditor.Search;
 using UnityEngine;
 
 public class AMPosition : MonoBehaviour
@@ -13,6 +13,7 @@ public class AMPosition : MonoBehaviour
     }
 
     public void Show(bool isVisible)
+
     {
         gameObject.SetActive(isVisible);       
     }

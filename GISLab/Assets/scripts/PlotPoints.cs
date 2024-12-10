@@ -69,9 +69,9 @@ public class PlotPoints : MonoBehaviour
                     GameObject caps = Instantiate(CapsulePrefab, new Vector3(0, 0, 0), Quaternion.identity);
                     caps.transform.SetParent(parent.transform);
                     caps.transform.localPosition = new Vector3((float)x, 0, (float)y);
-                    //caps.transform.localScale = parent.transform.localScale;
+                    caps.transform.localScale = parent.transform.localScale.x * CapsulePrefab.transform.localScale;
                     caps.name = name;
-                    //caps.layer = 7;
+                    caps.layer = 7;
 
                     // Get the Renderer component from the new cube
                     var cubeRenderer = caps.GetComponent<Renderer>();

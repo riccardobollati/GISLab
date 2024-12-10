@@ -4,7 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Emma.unity
+    guid: 7befca63ecf13ae45b89e5264215f715
   m_configObjects:
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 5af72d40e16b8da4991123953265a61f, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4ea1474602d58bb49a74b18af14e63a9, type: 2}

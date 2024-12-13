@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
+using UnityEditor.PackageManager.Requests;
 
 public class PopUpManager : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class PopUpManager : MonoBehaviour
 
     public void PopulatePopUp(string id)
     {
-
+        gameObject.name = id + "_popUp";
         // get text component
         commonName = transform.Find("content/Info/common_name").GetComponent<TMP_Text>();
         scientificName = transform.Find("content/Info/scientific_name").GetComponent<TMP_Text>();
@@ -57,6 +58,10 @@ public class PopUpManager : MonoBehaviour
         // get image
         StartCoroutine(DownloadAndSetImage(observation["image_url"]));
     }
+
+    public void ClosePopUp() {
+        Destroy(gameObject);
+    }
     private IEnumerator DownloadAndSetImage(string imageUrl)
     {
         using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl))
@@ -81,6 +86,8 @@ public class PopUpManager : MonoBehaviour
             }
         }
     }
+
+
 
 
     // Update is called once per frame

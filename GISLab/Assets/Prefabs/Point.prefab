@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 6766813599757127872}
   - component: {fileID: 135887613989325013}
   - component: {fileID: 8501086689855231276}
-  - component: {fileID: 7470627124115702822}
   m_Layer: 0
   m_Name: Point
   m_TagString: Untagged
@@ -370,15 +369,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoveringParticlesPrefab: {fileID: 2530980554367063995, guid: b238bb7ff9bb40947a987874e82048bc, type: 3}
   popUp: {fileID: 2679062015655648771, guid: 095a6b887a5974743a2324dcf6564738, type: 3}
---- !u!114 &7470627124115702822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3593909463469931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e39331cd86d8b4b468e2f5c8c6877143, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

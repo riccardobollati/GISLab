@@ -10,6 +10,13 @@ public class pointHandler : MonoBehaviour
 
     public GameObject popUp;
 
+    private Rigidbody rb;
+
+    private Vector3 lastPosition;
+    private bool destroyed = false;
+
+
+
     public void HoverEntered()
     {
         Debug.Log("entered hovering------------------------");
@@ -41,13 +48,21 @@ public class pointHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        rb = GetComponent<Rigidbody>();
+        lastPosition = new Vector3(0,0,0);
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        // destroy the rigid body if the point is still
+        if (lastPosition == transform.position && !destroyed)
+        {
+            Destroy(rb);
+            destroyed = true;
+        }
+        else
+            lastPosition = transform.position;
     }
 }

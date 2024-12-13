@@ -12,6 +12,8 @@ public class PlotPoints : MonoBehaviour
 
     // this parameter controll the max number of points that will be rendered
     public int pointsMax = 1000;
+    public double displayRate = 0.1;
+
 
     public Material materialAves;
     public Material materialAmphibia;
@@ -52,86 +54,85 @@ public class PlotPoints : MonoBehaviour
 
     private IEnumerator PlotPointsWithDelay(List<Dictionary<string, string>> data)
     {
-        int i = 0;
         foreach (Dictionary<string, string> point in data)
         {
-            i += 1;
-            if (i >= pointsMax) break;
-
-            newDisplayed.Add(point["id"]);
-            // If the point is not rendered yet
-            if (!displayed.Contains(point["id"]))
+            System.Random random = new System.Random();
+            int randomInt = random.Next(0, 100);
+            if (randomInt <= 100 * displayRate)
             {
-                // Map the point to a grid cell
-                double x = double.Parse(point["longitude_converted"]);
-                double y = double.Parse(point["latitude_converted"]);
-                string name = point["id"];
-                string taxon = point["iconic_taxon_name"];
 
-                GameObject caps = Instantiate(CapsulePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-                caps.transform.SetParent(parent.transform);
-                caps.transform.localPosition = new Vector3((float)x, 0, (float)y);
-                caps.transform.localScale = parent.transform.localScale.x * CapsulePrefab.transform.localScale;
-                caps.name = name;
-                caps.layer = 7;
-
-                // Get the Renderer component from the new cube
-                var cubeRenderer = caps.GetComponent<Renderer>();
-
-                switch (taxon)
+                newDisplayed.Add(point["id"]);
+                // If the point is not rendered yet
+                if (!displayed.Contains(point["id"]))
                 {
-                    case "Aves":
-                        cubeRenderer.material = materialAves;
-                        break;
-                    case "Amphibia":
-                        cubeRenderer.material = materialAmphibia;
-                        break;
-                    case "Reptilia":
-                        cubeRenderer.material = materialReptilia;
-                        break;
-                    case "Mammalia":
-                        cubeRenderer.material = materialMammalia;
-                        break;
-                    case "Actinopterygii":
-                        cubeRenderer.material = materialActinopterygii;
-                        break;
-                    case "Mollusca":
-                        cubeRenderer.material = materialMollusca;
-                        break;
-                    case "Arachnida":
-                        cubeRenderer.material = materialArachnida;
-                        break;
-                    case "Insecta":
-                        cubeRenderer.material = materialInsecta;
-                        break;
-                    case "Plantae":
-                        cubeRenderer.material = materialPlantae;
-                        break;
-                    case "Fungi":
-                        cubeRenderer.material = materialFungi;
-                        break;
-                    case "Protozoa":
-                        cubeRenderer.material = materialProtozoa;
-                        break;
-                    case "Unknown":
-                        cubeRenderer.material = materialUnknown;
-                        break;
-                    default:
-                        break;
+                    // Map the point to a grid cell
+                    double x = double.Parse(point["longitude_converted"]);
+                    double y = double.Parse(point["latitude_converted"]);
+                    string name = point["id"];
+                    string taxon = point["iconic_taxon_name"];
+
+                    GameObject caps = Instantiate(CapsulePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+                    caps.transform.SetParent(parent.transform);
+                    caps.transform.localPosition = new Vector3((float)x, 0.5f, (float)y);
+                    caps.transform.localScale = parent.transform.localScale.x * CapsulePrefab.transform.localScale;
+                    caps.name = name;
+                    caps.layer = 7;
+
+                    // Get the Renderer component from the new cube
+                    var cubeRenderer = caps.GetComponent<Renderer>();
+
+                    switch (taxon)
+                    {
+                        case "Aves":
+                            cubeRenderer.material = materialAves;
+                            break;
+                        case "Amphibia":
+                            cubeRenderer.material = materialAmphibia;
+                            break;
+                        case "Reptilia":
+                            cubeRenderer.material = materialReptilia;
+                            break;
+                        case "Mammalia":
+                            cubeRenderer.material = materialMammalia;
+                            break;
+                        case "Actinopterygii":
+                            cubeRenderer.material = materialActinopterygii;
+                            break;
+                        case "Mollusca":
+                            cubeRenderer.material = materialMollusca;
+                            break;
+                        case "Arachnida":
+                            cubeRenderer.material = materialArachnida;
+                            break;
+                        case "Insecta":
+                            cubeRenderer.material = materialInsecta;
+                            break;
+                        case "Plantae":
+                            cubeRenderer.material = materialPlantae;
+                            break;
+                        case "Fungi":
+                            cubeRenderer.material = materialFungi;
+                            break;
+                        case "Protozoa":
+                            cubeRenderer.material = materialProtozoa;
+                            break;
+                        case "Unknown":
+                            cubeRenderer.material = materialUnknown;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    displayed.Add(point["id"]);
+                    pointsMap[point["id"]] = caps;
+
+                    // Wait for 0.5 seconds before instantiating the next point
+                    yield return new WaitForSeconds(0.0002f);
+
+
                 }
-
-                displayed.Add(point["id"]);
-                pointsMap[point["id"]] = caps;
-
-                // Wait for 0.5 seconds before instantiating the next point
-                yield return new WaitForSeconds(0.02f);
-
-                // Disable gravity
-                Rigidbody rb = caps.GetComponent<Rigidbody>();
-                if (rb != null)
-                    Destroy(rb);
+                Debug.Log("Displayed point: ");
             }
-            Debug.Log("Displayed point: " + i);
         }
 
         // Update displayed points

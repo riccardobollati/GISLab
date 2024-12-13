@@ -2,6 +2,7 @@ using MixedReality.Toolkit.UX;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 
 public class PlotHeatMap : MonoBehaviour
@@ -16,6 +17,7 @@ public class PlotHeatMap : MonoBehaviour
     public float gap;
     public int maxCubes;
     public int minCubes;
+    public double tall;
 
 
 
@@ -24,7 +26,7 @@ public class PlotHeatMap : MonoBehaviour
     private int nRows;
     private int nCols;
     private int[,] heatMapData;
-    private float baseline = 0.5f;
+    public float baseline;
 
     private double boxWidth;
     private double boxHeight;
@@ -105,8 +107,10 @@ public class PlotHeatMap : MonoBehaviour
         foreach (Dictionary<string, string> point in data)
         {
             // Map the point to a grid cell
-            int col = (int)((double.Parse(point["longitude_converted"]) - minLng) / gridWidx);
-            int row = (int)((double.Parse(point["latitude_converted"]) - minLat) / gridHidx);
+            //int col = (int)((double.Parse(point["longitude_converted"]) - minLng) / gridWidx);
+            //int row = (int)((double.Parse(point["latitude_converted"]) - minLat) / gridHidx);
+            int col = (int)(((double.Parse(point["longitude_converted"]) - minLng) / gridWidth) * nCols);
+            int row = (int)(((double.Parse(point["latitude_converted"]) - minLat) / gridHeight) * nRows);
 
             // Ensure the point is within the bounds of the grid
             if (col >= 0 && col < nCols && row >= 0 && row < nRows)
@@ -133,11 +137,11 @@ public class PlotHeatMap : MonoBehaviour
                 Destroy(cube);
         }
         heatMapCubes = new GameObject[nRows, nCols];
-        int max = GetMaxFrom2DArray(heatMapData);
-        if (max == 0)
-        {
-            max = 1;
-        }
+        //double max = GetMaxFrom2DArray(heatMapData);
+            //if (max == 0)
+            //{
+            //    max = 1;
+            //}
         //if (boxWidth > boxHeight)
         //{
         //    boxHeight = boxHeight / boxWidth;
@@ -149,18 +153,18 @@ public class PlotHeatMap : MonoBehaviour
         //    boxHeight = 1;
         //}
 
-        Vector3 cubePosition = new Vector3(origin_x, 0.5f, origin_z);
+        Vector3 cubePosition = new Vector3((float)(origin_x+(boxWidth/2)), 0.5f, (float)(origin_z + (boxHeight / 2)));
 
         for (int row = 0; row < nRows; row++)
         {
             for (int col = 0; col < nCols; col++)
             {
-                float height = (float)heatMapData[row, col] / (float)max;
+                float height = (float)heatMapData[row, col]; /// (float)std;
                 heatMapCubes[row, col] = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
                 heatMapCubes[row, col].transform.parent = parent_plane.transform;
-                heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, baseline + height * 2f, (float)boxHeight);
+                heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, (float)(baseline + height * tall), (float)boxHeight);
                 Vector3 newPosition = cubePosition;
-                newPosition.y = (baseline + height * 2f) / 2f;
+                newPosition.y = (float)(baseline + height * tall)/2;
 
                 heatMapCubes[row, col].transform.position = newPosition;
                 cubePosition = new Vector3(cubePosition.x + (float)boxWidth + gap, cubePosition.y, cubePosition.z);
@@ -168,27 +172,31 @@ public class PlotHeatMap : MonoBehaviour
                 // change cube color based on the density of the region
                 Renderer renderer = heatMapCubes[row, col].GetComponent<Renderer>();
                 Color currentColor = renderer.material.color;
-                currentColor.a = height * 170 / 255;
+                currentColor.a = 0.5f;
                 renderer.material.color = currentColor;
             }
-            cubePosition = new Vector3(origin_x, cubePosition.y, cubePosition.z + (float)boxHeight + gap);
+            cubePosition = new Vector3((float)(origin_x + (boxWidth / 2)), cubePosition.y, cubePosition.z + (float)boxHeight + gap);
         }
 
         //transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 
-    private static int GetMaxFrom2DArray(int[,] array)
+  
+
+    private static double GetMaxFrom2DArray(int[,] array)
     {
-        int max = int.MinValue;
+        double max = 0;
+
 
         for (int row = 0; row < array.GetLength(0); row++)
         {
             for (int col = 0; col < array.GetLength(1); col++)
             {
-                if (array[row, col] > max)
+                if (max <=  (double)array[row, col])
                 {
-                    max = array[row, col];
+                    max = (double)array[row, col];
                 }
+
             }
         }
 

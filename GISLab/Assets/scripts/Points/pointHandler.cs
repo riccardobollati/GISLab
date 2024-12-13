@@ -24,13 +24,17 @@ public class pointHandler : MonoBehaviour
 
     public void OnCLicked()
     {
-        Vector3 spawnPosition = transform.position + new Vector3(0, 1, 0);
-        popUp = Instantiate(popUp, spawnPosition, Quaternion.identity);
-        PopUpManager popUpMen = popUp.GetComponent<PopUpManager>();
-        popUpMen.dbObj = GameObject.Find("DB");
-        popUpMen.db = popUpMen.dbObj.GetComponent<ReadCSV>();
-        Debug.Log("[pointHandler] Getting data for observation: " + gameObject.name);
-        popUpMen.PopulatePopUp(gameObject.name);
+        // istantiate the popUp only if it doesn't exists already
+        if(GameObject.Find(gameObject.name + "_popUp") == null)
+        {
+            Vector3 spawnPosition = transform.position + new Vector3(0, 0.5f, 0);
+            popUp = Instantiate(popUp, spawnPosition, Quaternion.identity);
+            PopUpManager popUpMen = popUp.GetComponent<PopUpManager>();
+            popUpMen.dbObj = GameObject.Find("DB");
+            popUpMen.db = popUpMen.dbObj.GetComponent<ReadCSV>();
+            Debug.Log("[pointHandler] Getting data for observation: " + gameObject.name);
+            popUpMen.PopulatePopUp(gameObject.name);
+        }
 
 
     }

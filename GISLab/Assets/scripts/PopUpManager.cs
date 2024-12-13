@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
-using UnityEditor.PackageManager.Requests;
+using System.IO;
 
 public class PopUpManager : MonoBehaviour
 {
@@ -54,14 +54,18 @@ public class PopUpManager : MonoBehaviour
             timeObservedAt.text = "No date found";
         else
             timeObservedAt.text = observation["time_observed_at"];
-        
+
         // get image
-        StartCoroutine(DownloadAndSetImage(observation["image_url"]));
+        // using network (not working on hololens)
+        //StartCoroutine(DownloadAndSetImage(observation["image_url"]));
+
+        LoadAndSetImage(observation["id"]);
     }
 
     public void ClosePopUp() {
         Destroy(gameObject);
     }
+
     private IEnumerator DownloadAndSetImage(string imageUrl)
     {
         using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl))
@@ -84,6 +88,36 @@ public class PopUpManager : MonoBehaviour
             {
                 Debug.LogError("Failed to download texture: " + request.error);
             }
+        }
+    }
+
+    // Method to load and set the texture from a local file
+    public void LoadAndSetImage(string id)
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "images", id + ".jpg");
+        Debug.Log("Getting image from: " + filePath);
+
+        if (File.Exists(filePath))
+        {
+            // Read the image file as a byte array
+            byte[] imageData = File.ReadAllBytes(filePath);
+
+            // Create a new Texture2D and load the image data
+            Texture2D loadedTexture = new Texture2D(2, 2);
+            if (loadedTexture.LoadImage(imageData))
+            {
+                // Apply the texture to the material
+                ImageRenderer.material.SetTexture("_MainTex", loadedTexture);
+                Debug.Log("Texture successfully applied from local file.");
+            }
+            else
+            {
+                Debug.LogError("Failed to load texture data.");
+            }
+        }
+        else
+        {
+            Debug.LogError("File not found: " + filePath);
         }
     }
 

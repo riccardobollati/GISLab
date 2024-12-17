@@ -13,10 +13,10 @@ public class pointHandler : MonoBehaviour
 
     private Rigidbody rb;
 
+    public float stillThreshold = 0.5f;
+    private float stillTime = 0f;      
     private Vector3 lastPosition;
     private bool destroyed = false;
-    private int c = 0;
-
 
 
     public void HoverEntered()
@@ -51,25 +51,26 @@ public class pointHandler : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        lastPosition = new Vector3(0,0,0);
+        lastPosition = transform.position;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (c >= 4)
-        { // destroy the rigid body if the point is still
-            if (lastPosition == transform.position && !destroyed)
+        if (destroyed) return;
+
+        if (Vector3.Distance(transform.position, lastPosition) < 0.001f)
+        {
+            stillTime += Time.deltaTime;
+            if (stillTime >= stillThreshold) 
             {
                 Destroy(rb);
                 destroyed = true;
             }
-            else
-                lastPosition = transform.position;
-        } else
-        {
-            lastPosition = transform.position;
         }
+        else
+            stillTime = 0f;
+        lastPosition = transform.position;
     }
 }

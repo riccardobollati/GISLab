@@ -5,6 +5,7 @@ using System.Linq;
 
 public class PlotPoints : MonoBehaviour
 {
+    ReadCSV db;
 
     // heatmap prefabs
     public GameObject CapsulePrefab;
@@ -27,41 +28,67 @@ public class PlotPoints : MonoBehaviour
     public Material materialFungi;
     public Material materialProtozoa;
     public Material materialUnknown;
-
-    int firstFrame = 0;
-
+    
     // to keep track of rendered points
     HashSet<string> displayed = new HashSet<string>();
     HashSet<string> newDisplayed = new HashSet<string>();
     Dictionary<string, GameObject> pointsMap = new();
 
-    public void Destroy()
-    {
-        foreach (string pointId in displayed)
-        {
-            Destroy(pointsMap[pointId]);
-        }
+
+    public void Start(){
+        db = GameObject.Find("DB").GetComponent<ReadCSV>();
     }
-    public void plot(List<Dictionary<string, string>> data)
+
+    public void DisplayPointsOnMap(){
+        plot(db.observationsFiltered);
+    }
+
+    void plot(List<Dictionary<string, string>> data)
     {
         Debug.Log("creating points...");
         Debug.Log("points to scan: " + data.Count);
 
         SortDataByLatitude(ref data);
-        // plot points 
-        StartCoroutine(PlotPointsWithDelay(data));
+        
+        // get list of points we have to plot
+        foreach(Dictionary<string, string> point in data){
+                newDisplayed.Add(point["id"]);
+        }
+
+        if(data.Count > pointsMax){
+            Debug.Log("creating random");
+            float percentage = (float)pointsMax/data.Count;
+            Debug.Log(percentage);
+            List<Dictionary<string, string>> randomSubset = GetRandomSubset(data, percentage);
+            StartCoroutine(PlotPointsWithDelay(randomSubset));
+        }else
+            StartCoroutine(PlotPointsWithDelay(data));
+        
+    }
+
+      static List<Dictionary<string, string>> GetRandomSubset(List<Dictionary<string, string>> data, float percentage)
+    {
+        System.Random random = new System.Random();
+        int count = (int)(data.Count * percentage);
+        return data.OrderBy(x => random.Next()).Take(count).ToList();
     }
 
     private IEnumerator PlotPointsWithDelay(List<Dictionary<string, string>> data)
     {
+
+        Debug.Log("plotting :" + data.Count + " points");
+        // delete points we don't want
+        foreach(KeyValuePair<string, GameObject> kvp in pointsMap){
+            Debug.Log("Deliting points");
+            if(!newDisplayed.Contains(kvp.Key))
+                Destroy(pointsMap[kvp.Key]);
+                displayed.Remove(kvp.Key);
+        }
+
+        // render new points
         foreach (Dictionary<string, string> point in data)
         {
-            System.Random random = new System.Random();
-            int randomInt = random.Next(0, 100);
-            if (randomInt <= 100 * displayRate)
-            {
-
-                newDisplayed.Add(point["id"]);
+   
                 // If the point is not rendered yet
                 if (!displayed.Contains(point["id"]))
                 {
@@ -125,23 +152,15 @@ public class PlotPoints : MonoBehaviour
 
                     displayed.Add(point["id"]);
                     pointsMap[point["id"]] = caps;
+                    
+                    // Wait for before instantiating the next point to create the waive effect
+                    yield return new WaitForSeconds(0.002f);
 
-                    // Wait for 0.5 seconds before instantiating the next point
-                    yield return new WaitForSeconds(0.0002f);
-
-
-                }
-                Debug.Log("Displayed point: ");
             }
         }
 
-        // Update displayed points
-        displayed.ExceptWith(newDisplayed);
-        foreach (string pointId in displayed)
-        {
-            Destroy(pointsMap[pointId]);
-        }
-        displayed = newDisplayed;
+        // reset list of points to display
+        newDisplayed = new HashSet<string>{};
 
         Debug.Log("Points rendering complete.");
     }

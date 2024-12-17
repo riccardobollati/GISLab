@@ -56,13 +56,13 @@ public class pointHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // destroy the rigid body if the point is still
-        if (lastPosition == transform.position && !destroyed)
-        {
-            Destroy(rb);
-            destroyed = true;
-        }
-        else
-            lastPosition = transform.position;
+        // // destroy the rigid body if the point is still
+        // if (lastPosition == transform.position && !destroyed)
+        // {
+        //     Destroy(rb);
+        //     destroyed = true;
+        // }
+        // else
+        //     lastPosition = transform.position;
     }
 }

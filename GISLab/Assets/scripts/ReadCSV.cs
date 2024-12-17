@@ -13,12 +13,10 @@ public class ReadCSV : MonoBehaviour
 
     
     private List<Dictionary<string, string>> observationsDataList = new(); // All data
-    private List<Dictionary<string, string>> observationsFiltered = new(); // Current filtered data
+    public List<Dictionary<string, string>> observationsFiltered = new(); // Current filtered data
 
     // Filters Parameters
     private HashSet<string> filterCategory = new(); // Current categories
-    private bool points = true;                     // Current Point mode : points or heatmap
-    private int dateMode = 0;                          //0 = any date, 1 = fixed date, 2 = range date
     private DateTime? exactDate = null;       // Current Date
     private DateTime?[] dateRange = new DateTime?[2];// Current Date Range
     private float granularity = 1;
@@ -31,33 +29,13 @@ public class ReadCSV : MonoBehaviour
     public GameObject sphereN;
     public PlotPoints pointsScript;
     public PlotHeatMap heatMapScript;
-    public AroundMe arountMeScript;
     public InfoPanel infoPanel;
     public GameObject zurichAppObject;
-    public AMPosition AMPosition;
-    public AMrotation AMRotation;
     public GameObject zurichMap;
 
-
-
-
-
-    private Matrix4x4 transformationMatrix;
-
-    private bool lockAroundMePosition = false;
-    private bool lockAroundMeRotation = false;
-
-    private Vector3 capsPosition;
-    private Vector3 gameMapPosition;
-    private Vector3 userPosition;
-    private Quaternion origineRotation;
-    private Quaternion userRotation;
-    private Vector3 orPos;
-    private Quaternion orRot;
-    private Vector3 orScale;
-
     public XROrigin xrOrigin;
-    void Start()
+
+    public void Start()
     {
         // read data from the csv database
         ReadCsv("data.csv");
@@ -65,16 +43,6 @@ public class ReadCSV : MonoBehaviour
         // at the beginnnig we take all the observations
         observationsFiltered = observationsDataList;
 
-
-
-        // compute transformation matrix for coordinates
-        //transformationMatrix = CalculateTransformationMatrix(sphereSW, sphereSE, sphereN);
-
-        // initialize filter params
-        // filterCategory = new HashSet<string> { "Plantae", "Arachnida", "Insecta", "Fungi", "Mollusca", "Aves",
-        //"Actinopterygii", "Reptilia", "Mammalia", "Amphibia", "Protozoa", "Animalia", "Chromista" };
-
-        // filterDataRange = new List<DateTime> { new DateTime(2020, 07, 15), new DateTime(2024, 07, 15) };
         dateRange[0] = null;
         dateRange[1] = null;
 
@@ -207,10 +175,6 @@ public class ReadCSV : MonoBehaviour
 
     public Vector2 Wgs84CoordsToUnity(Vector2 wgs84Point)
     {
-        //Vector4 wgs84Vector = new Vector4(wgs84Point.x, wgs84Point.y, 1, 0);
-        //Vector4 unityVector = transformationMatrix * wgs84Vector;
-
-        //return new Vector2(unityVector.x, unityVector.y);
 
         Matrix4x4 transMat = Matrix4x4.identity;
         transMat.SetRow(0, new Vector4(-86.14170713f, 19.24295351f, -176.65586266f, 0));
@@ -240,141 +204,14 @@ public class ReadCSV : MonoBehaviour
         observationsFiltered = observationsDataList;
         foreach (string c in filterCategory)
             Debug.Log(c);
-
-        if (dateMode == 0) // Any date
-        {
-            observationsFiltered = observationsFiltered.Where(obs => {
-              return filterCategory.Contains(obs["iconic_taxon_name"]);
-               }).ToList();
-        }
-        else if (dateMode == 1) // Fixed Date
-        {
-                observationsFiltered = observationsFiltered.Where(obs => {
-                    return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date == exactDate;
-                }).ToList();
-        }
-        else if (dateMode == 2) // Range date
-        {
-            observationsFiltered = observationsFiltered.Where(obs => {
-                return filterCategory.Contains(obs["iconic_taxon_name"]) && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd",System.Globalization.CultureInfo.InvariantCulture).Date >= dateRange[0] 
-                && DateTime.ParseExact(obs["observed_on"], "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date <= dateRange[1];
-            }).ToList();
-        } else // Error
-        {
-            Debug.Log("Incorrect date mode.");
-        }
         if (filterCategory.Count < 13)
             observationsFiltered = observationsFiltered.Where(obs => {
                 return filterCategory.Contains(obs["iconic_taxon_name"]);
             }).ToList();
-        //// filter date
-        //if(filterExactDate != null)
-        //    observationsFiltered = observationsFiltered.Where(obs => DateTime.Parse(obs["observed_on"]) == filterExactDate).ToList();
-        //else if(filterDataRange != null && filterDataRange.Count > 1)
-        //    observationsFiltered = observationsFiltered.Where(obs => (
-        //    DateTime.Parse(obs["observed_on"]) >= filterDataRange[0] && 
-        //    DateTime.Parse(obs["observed_on"]) <= filterDataRange[1]
-        //    )).ToList();
 
         Debug.Log($"data filtered, results: {observationsFiltered.Count}");
     }
 
-
-    public void SetPointMode(bool pointMode)
-    {
-        points = pointMode;
-        if (pointMode)
-        {
-            infoPanel.WriteNewLine("Point mode");
-        } else
-        {
-            infoPanel.WriteNewLine("Heatmap mode");
-        }
-    }
-
-    public void SetAroundMeMode()
-    {
-        points = true;
-        lockAroundMePosition = true;
-        heatMapScript.Destroy();
-        pointsScript.Destroy();
-        infoPanel.WriteNewLine("Around Me mode");
-        infoPanel.WriteNewLine("Please, place the blue beacon where you are");
-        infoPanel.WriteNewLine("to indicte your current location. Then press 'Validate'.");
-        AMPosition.Show(true);
-    }
-
-    public void exitArounMeMode()
-    {
-
-        infoPanel.WriteNewLine("Exited Around Me mode");
-        AMRotation.Show(false);
-        AMPosition.Show(false);
-        pointsScript.Destroy();
-        heatMapScript.Destroy();
-
-        zurichAppObject.transform.position = orPos;
-        zurichAppObject.transform.rotation = orRot;
-        zurichAppObject.transform.localScale = orScale;
-        zurichMap.SetActive(true);
-        lockAroundMePosition = false;
-        lockAroundMeRotation = false;
-    }
-
-    private void AroundMeRotation()
-    {
-        infoPanel.WriteNewLine("Please, now rotate the compas to point north");
-        infoPanel.WriteNewLine("Then press 'Validate'.");
-        origineRotation = AMRotation.getRotation();
-        AMRotation.Show(true);
-        
-        zurichMap.SetActive(false);
-    }
-    public void AddFixedDate(String newDate)
-    {
-        dateMode = 1;
-        if (checkDate(newDate))
-        {
-            exactDate = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-            infoPanel.WriteNewLine($"Exact date: {((DateTime)exactDate).ToString("yyyy-MM-dd")}");
-        }
-
-    }
-
-    public void AddRangeDateFrom(String newDate)
-    {
-        dateMode = 2;
-        if (checkDate(newDate))
-        {
-            dateRange[0] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-            if (dateRange[1] != null) { infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
-            else
-            {
-                infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to ?");
-            }
-        }
-    }
-
-    public void AddRangeDateTo(String newDate)
-    {
-        dateMode = 2;
-        if (checkDate(newDate))
-        {
-            dateRange[1] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-            if (dateRange[0] != null) {infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
-            else
-            {
-                infoPanel.WriteNewLine($"Date range: from ? to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}");
-            }
-        }
-
-    }
-
-    public void SetAnyDate()
-    {
-        dateMode = 0;
-        infoPanel.WriteNewLine("Any date selected");
-    }
 
     public void AddCategory(string category)
     {
@@ -393,104 +230,6 @@ public class ReadCSV : MonoBehaviour
         granularity = eventData.NewValue;
         infoPanel.WriteNewLine($"Granularity changed: {eventData.NewValue}");
 
-    }
-
-    public void Confirm()
-    {
-        if (lockAroundMePosition)
-        {
-            capsPosition = AMPosition.getPosition();
-            userPosition = xrOrigin.Camera.transform.position;
-            gameMapPosition = zurichAppObject.transform.position;
-   
-            lockAroundMePosition = false;
-            lockAroundMeRotation = true;
-            AMPosition.Show(false);
-            AroundMeRotation();
-
-            return;
-        }
-        if (lockAroundMeRotation)
-        {
-             userRotation = AMRotation.getRotation();
-
-            
-
-            lockAroundMeRotation = false;
-            AMRotation.Show(false);
-            infoPanel.WriteNewLine("You can now apply the filter normally.");
-            //hide zurich
-            orPos = zurichAppObject.transform.position;
-            orRot = zurichAppObject.transform.rotation;
-            orScale = zurichAppObject.transform.localScale;
-            zurichAppObject.transform.position = userPosition - capsPosition;
-            zurichAppObject.transform.rotation = Quaternion.Inverse(origineRotation) * userRotation;
-            zurichAppObject.transform.localScale= 10 * Vector3.one;
-            return;
-        }
-        if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))
-        {
-            infoPanel.WriteNewLine("Incorrect date format.");
-            return;
-        }
-        if (dateMode == 2 && dateRange[1] < dateRange[0])
-        {
-            infoPanel.WriteNewLine("To date smaller than from date.");
-            return;
-        }
-        
-        FilterData();
-        if (observationsFiltered.Count == 0)
-        {
-            infoPanel.WriteNewLine("No datapoints found for this filter.");
-
-        } else if (points)
-        {
-            
-            heatMapScript.Destroy();
-            pointsScript.plot(observationsFiltered);
-            infoPanel.WriteNewLine("Points plotted.");
-
-        } else
-        {
-            pointsScript.Destroy();
-            heatMapScript.plot(observationsFiltered, granularity);
-            infoPanel.WriteNewLine("HeatMap plotted.");
-
-        }
-    }
-
-    public bool checkDate(string date)
-    {
-        var flag = true;
-        try
-        {
-            DateTime.ParseExact(date,
-                "yyyy-mm-dd",
-                System.Globalization.CultureInfo.InvariantCulture);
-
-        }
-        catch
-        {
-            flag = false;
-        }
-
-        if (flag == false)
-        {
-            infoPanel.WriteNewLine("Incorrect date format.");
-            return false;
-        }
-        else
-        {
-            return true;
-
-        }
-
-    }
-
-    public void plotShpere()
-    {
-        arountMeScript.Plot(observationsFiltered);
     }
     
 }

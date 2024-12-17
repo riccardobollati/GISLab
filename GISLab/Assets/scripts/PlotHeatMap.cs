@@ -137,11 +137,11 @@ public class PlotHeatMap : MonoBehaviour
                 Destroy(cube);
         }
         heatMapCubes = new GameObject[nRows, nCols];
-        //double max = GetMaxFrom2DArray(heatMapData);
-            //if (max == 0)
-            //{
-            //    max = 1;
-            //}
+        double max = GetMaxFrom2DArray(heatMapData);
+        if (max == 0)
+        {
+            max = 1;
+        }
         //if (boxWidth > boxHeight)
         //{
         //    boxHeight = boxHeight / boxWidth;
@@ -172,7 +172,7 @@ public class PlotHeatMap : MonoBehaviour
                 // change cube color based on the density of the region
                 Renderer renderer = heatMapCubes[row, col].GetComponent<Renderer>();
                 Color currentColor = renderer.material.color;
-                currentColor.a = 0.5f;
+                currentColor.a =(float) (height/max);
                 renderer.material.color = currentColor;
             }
             cubePosition = new Vector3((float)(origin_x + (boxWidth / 2)), cubePosition.y, cubePosition.z + (float)boxHeight + gap);

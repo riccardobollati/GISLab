@@ -5280,7 +5280,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1093260189042396786, guid: 51e8ac71ccc87ea4b90f1003b43f7d84, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4517758966731391011, guid: 51e8ac71ccc87ea4b90f1003b43f7d84, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9775,7 +9775,7 @@ Transform:
   m_GameObject: {fileID: 1097516800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.29, z: 0}
+  m_LocalPosition: {x: 0, y: -0.36, z: 0}
   m_LocalScale: {x: 1.4, y: 1, z: 1.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18079,7 +18079,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1401803598
 SphereCollider:
   m_ObjectHideFlags: 0

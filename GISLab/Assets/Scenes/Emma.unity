@@ -5953,7 +5953,7 @@ MonoBehaviour:
   gap: 0.01
   maxCubes: 100
   minCubes: 5
-  tall: 0.01
+  tall: 1
   baseline: 0.7
 --- !u!114 &725696806
 MonoBehaviour:
@@ -94455,7 +94455,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hight
+  m_text: Height
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -104724,7 +104724,7 @@ GameObject:
   - component: {fileID: 6997473842325965508}
   - component: {fileID: 6471937382134631129}
   m_Layer: 5
-  m_Name: Hight
+  m_Name: Height
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -162,9 +162,9 @@ public class PlotHeatMap : MonoBehaviour
                 float height = (float)heatMapData[row, col]; /// (float)std;
                 heatMapCubes[row, col] = Instantiate(cubePrefab, cubePosition, Quaternion.identity);
                 heatMapCubes[row, col].transform.parent = parent_plane.transform;
-                heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, (float)(baseline + height * tall), (float)boxHeight);
+                heatMapCubes[row, col].transform.localScale = new Vector3((float)boxWidth, (float)(baseline + height/max * tall*2), (float)boxHeight);
                 Vector3 newPosition = cubePosition;
-                newPosition.y = (float)(baseline + height * tall)/2;
+                newPosition.y = 0.55f;//(float)(baseline + height * tall)/2;
 
                 heatMapCubes[row, col].transform.position = newPosition;
                 cubePosition = new Vector3(cubePosition.x + (float)boxWidth + gap, cubePosition.y, cubePosition.z);

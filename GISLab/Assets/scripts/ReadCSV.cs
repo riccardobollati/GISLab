@@ -389,25 +389,6 @@ public class ReadCSV : MonoBehaviour
 
     public void Confirm()
     {
-        if (lockAroundMePosition)
-        {
-            capsPosition = AMPosition.getPosition();
-            userPosition = xrOrigin.Camera.transform.position;
-            gameMapPosition = zurichAppObject.transform.position;
-   
-            userRotation = AMRotation.getRotation();
-            origineRotation = AMRotation.getRotation();
-
-            orPos = zurichAppObject.transform.position;
-            orRot = zurichAppObject.transform.rotation;
-            orScale = zurichAppObject.transform.localScale;
-            zurichAppObject.transform.position = userPosition - capsPosition;
-            zurichAppObject.transform.rotation = Quaternion.Inverse(origineRotation) * userRotation;
-            zurichAppObject.transform.localScale = 10 * Vector3.one;
-            AMMode = true;
-            zurichMap.SetActive(false);
-            return;
-        }
        
         
         if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))

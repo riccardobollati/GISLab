@@ -45,7 +45,7 @@ public class ReadCSV : MonoBehaviour
     private Matrix4x4 transformationMatrix;
 
     private bool lockAroundMePosition = false;
-    private bool lockAroundMeRotation = false;
+    private bool AMMode = false;
 
     private Vector3 capsPosition;
     private Vector3 gameMapPosition;
@@ -299,37 +299,29 @@ public class ReadCSV : MonoBehaviour
         heatMapScript.Destroy();
         pointsScript.Destroy();
         infoPanel.WriteNewLine("Around Me mode");
-        infoPanel.WriteNewLine("Please, place the blue beacon where you are");
-        infoPanel.WriteNewLine("to indicte your current location. Then press 'Validate'.");
         AMPosition.Show(true);
+        orPos = new Vector3(0.0f, 0.0f, 0.0f);
     }
 
-    public void exitArounMeMode()
+    public void exitAroundMeMode()
     {
 
         infoPanel.WriteNewLine("Exited Around Me mode");
-        AMRotation.Show(false);
         AMPosition.Show(false);
         pointsScript.Destroy();
         heatMapScript.Destroy();
-
-        zurichAppObject.transform.position = orPos;
-        zurichAppObject.transform.rotation = orRot;
-        zurichAppObject.transform.localScale = orScale;
+        if (orPos.x != 0.0f && orPos.y != 0.0f && orPos.z != 0.0f)
+        {
+            zurichAppObject.transform.position = orPos;
+            zurichAppObject.transform.rotation = orRot;
+            zurichAppObject.transform.localScale = orScale;
+        }
         zurichMap.SetActive(true);
         lockAroundMePosition = false;
-        lockAroundMeRotation = false;
+        AMMode = false;
     }
 
-    private void AroundMeRotation()
-    {
-        infoPanel.WriteNewLine("Please, now rotate the compas to point north");
-        infoPanel.WriteNewLine("Then press 'Validate'.");
-        origineRotation = AMRotation.getRotation();
-        AMRotation.Show(true);
-        
-        zurichMap.SetActive(false);
-    }
+    
     public void AddFixedDate(String newDate)
     {
         dateMode = 1;
@@ -361,7 +353,7 @@ public class ReadCSV : MonoBehaviour
         if (checkDate(newDate))
         {
             dateRange[1] = DateTime.ParseExact(newDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-            if (dateRange[0] != null) {infoPanel.WriteNewLine($"Date range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
+            if (dateRange[0] != null) {infoPanel.WriteNewLine($"Range: from {((DateTime)dateRange[0]).ToString("yyyy-MM-dd")} to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}"); }
             else
             {
                 infoPanel.WriteNewLine($"Date range: from ? to {((DateTime)dateRange[1]).ToString("yyyy-MM-dd")}");
@@ -397,37 +389,8 @@ public class ReadCSV : MonoBehaviour
 
     public void Confirm()
     {
-        if (lockAroundMePosition)
-        {
-            capsPosition = AMPosition.getPosition();
-            userPosition = xrOrigin.Camera.transform.position;
-            gameMapPosition = zurichAppObject.transform.position;
-   
-            lockAroundMePosition = false;
-            lockAroundMeRotation = true;
-            AMPosition.Show(false);
-            AroundMeRotation();
-
-            return;
-        }
-        if (lockAroundMeRotation)
-        {
-             userRotation = AMRotation.getRotation();
-
-            
-
-            lockAroundMeRotation = false;
-            AMRotation.Show(false);
-            infoPanel.WriteNewLine("You can now apply the filter normally.");
-            //hide zurich
-            orPos = zurichAppObject.transform.position;
-            orRot = zurichAppObject.transform.rotation;
-            orScale = zurichAppObject.transform.localScale;
-            zurichAppObject.transform.position = userPosition - capsPosition;
-            zurichAppObject.transform.rotation = Quaternion.Inverse(origineRotation) * userRotation;
-            zurichAppObject.transform.localScale= 10 * Vector3.one;
-            return;
-        }
+       
+        
         if ((dateMode == 1 && exactDate == null) || (dateMode == 2 && dateRange[0] == null) || (dateMode == 2 && dateRange[1] == null))
         {
             infoPanel.WriteNewLine("Incorrect date format.");

@@ -34,9 +34,10 @@ public class PlotPoints : MonoBehaviour
     HashSet<string> displayed = new HashSet<string>();
     HashSet<string> newDisplayed = new HashSet<string>();
     Dictionary<string, GameObject> pointsMap = new();
-
+    private bool stop = false;
     public void Destroy()
     {
+        stop = true;
         foreach (string pointId in displayed)
         {
             Destroy(pointsMap[pointId]);
@@ -44,9 +45,10 @@ public class PlotPoints : MonoBehaviour
     }
     public void plot(List<Dictionary<string, string>> data)
     {
+        stop = false;
         Debug.Log("creating points...");
         Debug.Log("points to scan: " + data.Count);
-
+ 
         SortDataByLatitude(ref data);
         // plot points 
         StartCoroutine(PlotPointsWithDelay(data));

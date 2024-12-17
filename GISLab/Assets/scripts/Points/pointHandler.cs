@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class pointHandler : MonoBehaviour
@@ -14,6 +15,7 @@ public class pointHandler : MonoBehaviour
 
     private Vector3 lastPosition;
     private bool destroyed = false;
+    private int c = 0;
 
 
 
@@ -56,13 +58,18 @@ public class pointHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // destroy the rigid body if the point is still
-        if (lastPosition == transform.position && !destroyed)
+        if (c >= 4)
+        { // destroy the rigid body if the point is still
+            if (lastPosition == transform.position && !destroyed)
+            {
+                Destroy(rb);
+                destroyed = true;
+            }
+            else
+                lastPosition = transform.position;
+        } else
         {
-            Destroy(rb);
-            destroyed = true;
-        }
-        else
             lastPosition = transform.position;
+        }
     }
 }
